@@ -1,0 +1,18 @@
+{% extends 'tienda/base.html' %}
+{% block contenido %}
+<h2>Productos disponibles</h2>
+<div class="grid">
+    {% for p in productos %}
+    <div class="card">
+        {% if p.imagen %}<img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">{% endif %}
+        <h3>{{ p.nombre }}</h3>
+        <p>${{ p.precio }}</p>
+        <a href="{% url 'detalle_producto' p.pk %}">Ver</a>
+        <a href="{% url 'editar_producto' p.pk %}">Editar</a>
+        <a href="{% url 'eliminar_producto' p.pk %}">Eliminar</a>
+    </div>
+    {% empty %}
+    <p>No hay productos.</p>
+    {% endfor %}
+</div>
+{% endblock %}
