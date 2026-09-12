@@ -1,6 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Producto, Categoria
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from .models import Pedido, Producto, Categoria 
+from .cart import Carrito
 
+#registro de usuario
+def registro(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('lista_productos')
+    else:
+        form = UserCreationForm()
+    return render(request, 'tienda/registro.html', {'form': form})
 # READ - Listar
 def lista_productos(request):
     productos = Producto.objects.filter(disponible=True)
@@ -49,3 +64,33 @@ def eliminar_producto(request, pk):
     return render(request, 'tienda/eliminar.html', {'producto': producto})
 
 # Create your views here.
+
+# carrito
+@login_required
+def agregar_al_carrito(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    carrito = Carrito(request)
+    carrito.agregar(producto)
+    return redirect('ver_carrito')
+
+def ver_carrito(request):
+    carrito = Carrito(request)
+    return render(request, 'tienda/carrito.html', {'carrito': carrito})
+
+def eliminar_del_carrito(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    carrito = Carrito(request)
+    carrito.eliminar(producto)
+    return redirect('ver_carrito')
+
+@login_required
+def pago_transferencia(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    if request.method == 'POST':
+        pedido.referencia_transferencia = request.POST.get('referencia', '')
+        if 'comprobante' in request.FILES:
+            pedido.comprobante = request.FILES['comprobante']
+        pedido.estado = 'pagado'
+        pedido.save()
+        return redirect('confirmacion_pedido', pedido_id=pedido.id)
+    return render(request, 'tienda/pago_transferencia.html', {'pedido': pedido})

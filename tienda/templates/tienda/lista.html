@@ -1,18 +1,172 @@
-{% extends 'tienda/base.html' %}
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Catálogo - Mi Tienda{% endblock %}
+
 {% block contenido %}
-<h2>Productos disponibles</h2>
-<div class="grid">
-    {% for p in productos %}
-    <div class="card">
-        {% if p.imagen %}<img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">{% endif %}
-        <h3>{{ p.nombre }}</h3>
-        <p>${{ p.precio }}</p>
-        <a href="{% url 'detalle_producto' p.pk %}">Ver</a>
-        <a href="{% url 'editar_producto' p.pk %}">Editar</a>
-        <a href="{% url 'eliminar_producto' p.pk %}">Eliminar</a>
-    </div>
-    {% empty %}
-    <p>No hay productos.</p>
-    {% endfor %}
+
+<!-- ==================== TÍTULO + BUSCADOR ==================== -->
+<section class="hero-tienda">
+    <h2>Nuestra Colección</h2>
+    <p>Descubre las últimas tendencias en moda</p>
+    
+    <form method="get" class="buscador-top">
+        <input type="text" name="q" placeholder="Buscar prendas..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn-dorado">🔍 Buscar</button>
+    </form>
+</section>
+
+<!-- ==================== LAYOUT PRINCIPAL ==================== -->
+<div class="layout-tienda">
+
+    <!-- ==================== SIDEBAR DE FILTROS ==================== -->
+    <aside class="sidebar-filtros">
+        <h3>⚙️ Filtrar</h3>
+        
+        <form method="get">
+            <!-- Mantener búsqueda si existe -->
+            {% if request.GET.q %}
+            <input type="hidden" name="q" value="{{ request.GET.q }}">
+            {% endif %}
+
+            <!-- Categorías -->
+            <h4>👕 Categoría</h4>
+            <select name="categoria">
+                <option value="">Todas las categorías</option>
+                {% for c in categorias %}
+                <option value="{{ c.id }}" 
+                    {% if request.GET.categoria == c.id|stringformat:"s" %}selected{% endif %}>
+                    {{ c.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <!-- Rango de precio -->
+            <h4>💰 Precio (USD)</h4>
+            <div class="precio-inputs">
+                <input type="number" name="precio_min" placeholder="Mín" 
+                       value="{{ request.GET.precio_min }}" min="0">
+                <input type="number" name="precio_max" placeholder="Máx" 
+                       value="{{ request.GET.precio_max }}" min="0">
+            </div>
+
+            <!-- Ordenamiento -->
+            <h4>📊 Ordenar por</h4>
+            <select name="orden">
+                <option value="">Relevancia</option>
+                <option value="precio_asc" {% if request.GET.orden == 'precio_asc' %}selected{% endif %}>
+                    Precio: menor a mayor
+                </option>
+                <option value="precio_desc" {% if request.GET.orden == 'precio_desc' %}selected{% endif %}>
+                    Precio: mayor a menor
+                </option>
+                <option value="nuevo" {% if request.GET.orden == 'nuevo' %}selected{% endif %}>
+                    Más recientes
+                </option>
+            </select>
+
+            <!-- Botones -->
+            <button type="submit" class="btn-dorado btn-full">Aplicar filtros</button>
+            <a href="{% url 'lista_productos' %}" class="btn-limpiar">Limpiar filtros</a>
+        </form>
+    </aside>
+
+    <!-- ==================== GRID DE PRODUCTOS ==================== -->
+    <section class="productos-container">
+        
+        <!-- Info de resultados -->
+        <div class="resultados-info">
+            <p>
+                {% if productos %}
+                    Mostrando <strong>{{ productos|length }}</strong> producto{{ productos|length|pluralize }}
+                    {% if request.GET.q %}para "<strong>{{ request.GET.q }}</strong>"{% endif %}
+                {% else %}
+                    No se encontraron productos
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Grid -->
+        <div class="productos-grid">
+            {% for p in productos %}
+            <article class="card-producto">
+                
+                <!-- Imagen -->
+                <a href="{% url 'detalle_producto' p.pk %}" class="card-imagen">
+                    {% if p.imagen %}
+                        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+                    {% else %}
+                        <div class="sin-imagen">👕</div>
+                    {% endif %}
+                    
+                    {% if p.stock == 0 %}
+                        <span class="badge-agotado">Agotado</span>
+                    {% elif p.stock < 5 %}
+                        <span class="badge-pocas">Últimas {{ p.stock }}</span>
+                    {% endif %}
+                </a>
+
+                <!-- Info -->
+                <div class="card-info">
+                    <span class="card-categoria">{{ p.categoria.nombre }}</span>
+                    <h3 class="card-nombre">
+                        <a href="{% url 'detalle_producto' p.pk %}">{{ p.nombre }}</a>
+                    </h3>
+                    <p class="card-descripcion">{{ p.descripcion|truncatewords:8 }}</p>
+                    
+                    <!-- Precio + Stock -->
+                    <div class="card-precio-stock">
+                        <span class="card-precio">${{ p.precio }}</span>
+                        {% if p.stock > 0 %}
+                            <span class="card-stock">✅ {{ p.stock }} disp.</span>
+                        {% else %}
+                            <span class="card-stock-agotado">❌ Agotado</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Acciones -->
+                    <div class="card-acciones">
+                        {% if p.stock > 0 %}
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'agregar_al_carrito' p.id %}" 
+                                   class="btn-dorado btn-carrito">
+                                    🛒 Agregar
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={% url 'agregar_al_carrito' p.id %}" 
+                                   class="btn-dorado btn-carrito">
+                                    🛒 Agregar
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <button class="btn-deshabilitado" disabled>Sin stock</button>
+                        {% endif %}
+                        
+                        <a href="{% url 'detalle_producto' p.pk %}" class="btn-ver">Ver</a>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            
+            <!-- Estado vacío -->
+            <div class="sin-productos">
+                <h3>😕 No hay productos</h3>
+                <p>Intenta ajustar los filtros o busca algo diferente.</p>
+                <a href="{% url 'lista_productos' %}" class="btn-dorado">Ver todo el catálogo</a>
+            </div>
+            
+            {% endfor %}
+        </div>
+
+        <!-- Botón para admin -->
+        {% if user.is_staff %}
+        <div class="admin-acciones">
+            <a href="{% url 'crear_producto' %}" class="btn-dorado">➕ Agregar nuevo producto</a>
+            <a href="/admin/" class="btn-admin">⚙️ Panel admin</a>
+        </div>
+        {% endif %}
+
+    </section>
 </div>
+
 {% endblock %}
