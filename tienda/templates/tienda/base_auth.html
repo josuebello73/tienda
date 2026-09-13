@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Mi Tienda{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body class="auth-body">
+
+    <!-- Botón para volver a la tienda -->
+    <a href="{% url 'lista_productos' %}" class="auth-back">
+        ← Volver a la tienda
+    </a>
+
+    <!-- Logo esquina superior izquierda -->
+    <a href="{% url 'lista_productos' %}" class="auth-logo">
+        <span>👑</span> MI TIENDA
+    </a>
+
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="auth-main">
+        {% block contenido %}{% endblock %}
+    </main>
+
+</body>
+</html>

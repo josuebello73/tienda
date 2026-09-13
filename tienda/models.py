@@ -4,12 +4,19 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+
+
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
 
+    class Meta:
+        verbose_name = "Categoría"
+        verbose_name_plural = "Categorías"
+
     def __str__(self):
         return self.nombre
+
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=200)
@@ -21,6 +28,11 @@ class Producto(models.Model):
     disponible = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Producto"
+        verbose_name_plural = "Productos"
+        ordering = ['-creado']
+
     def __str__(self):
         return self.nombre
 
@@ -31,30 +43,40 @@ class Pedido(models.Model):
         ('pagado', 'Pagado'),
         ('enviado', 'Enviado'),
         ('entregado', 'Entregado'),
+        ('cancelado', 'Cancelado'),
     ]
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pedidos')
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
-    total = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     referencia_transferencia = models.CharField(max_length=100, blank=True)
     comprobante = models.ImageField(upload_to='comprobantes/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Pedido"
+        verbose_name_plural = "Pedidos"
+        ordering = ['-creado']
 
     def __str__(self):
         return f"Pedido #{self.id} - {self.usuario.username}"
 
+
 class PedidoItem(models.Model):
     pedido = models.ForeignKey(Pedido, related_name='items', on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.SET_NULL, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     cantidad = models.IntegerField()
+
+    class Meta:
+        verbose_name = "Item del pedido"
+        verbose_name_plural = "Items del pedido"
 
     def subtotal(self):
         return self.precio * self.cantidad
 
     def __str__(self):
-        return f"{self.cantidad} x {self.producto.nombre}"
-
+        return f"{self.cantidad}× {self.producto.nombre if self.producto else 'Producto eliminado'}"
 
 def checkout(request):
     carrito = Carrito(request)

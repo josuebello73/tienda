@@ -1,11 +1,120 @@
-{% extends 'tienda/_base.html' %}
+{% extends 'tienda/base_auth.html' %}
+{% load static %}
+
+{% block titulo %}Crear Cuenta - Mi Tienda{% endblock %}
+
 {% block contenido %}
-<div class="form-container">
-    <h2>Crear Cuenta</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Registrarme</button>
-    </form>
+
+<div class="auth-page">
+    <div class="auth-bg">
+        <div class="auth-bg-shape shape-1"></div>
+        <div class="auth-bg-shape shape-2"></div>
+        <div class="auth-bg-shape shape-3"></div>
+    </div>
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">✨</span>
+            <h2>Crea tu cuenta</h2>
+            <p>Únete y accede a ofertas exclusivas</p>
+        </div>
+
+        <!-- ⬇️ ERRORES GENERALES (los que no son de un campo específico) -->
+        {% if form.non_field_errors %}
+        <div class="auth-error">
+            {% for error in form.non_field_errors %}
+                ⚠️ {{ error }}<br>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ⬇️ RESUMEN DE TODOS LOS ERRORES (para depurar) -->
+        {% if form.errors %}
+        <div class="auth-error">
+            <strong>⚠️ Errores encontrados:</strong>
+            <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li><strong>{{ field }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" class="auth-form" novalidate>
+            {% csrf_token %}
+
+            <!-- Nombre -->
+            <div class="auth-field">
+                <label for="{{ form.first_name.id_for_label }}">👤 Nombre</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                <small class="field-error">{{ form.first_name.errors.0 }}</small>
+                {% endif %}
+            </div>
+
+            <!-- Apellido -->
+            <div class="auth-field">
+                <label for="{{ form.last_name.id_for_label }}">👤 Apellido</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                <small class="field-error">{{ form.last_name.errors.0 }}</small>
+                {% endif %}
+            </div>
+
+            <!-- Usuario -->
+            <div class="auth-field">
+                <label for="{{ form.username.id_for_label }}">🔑 Usuario</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <small class="field-error">{{ form.username.errors.0 }}</small>
+                {% endif %}
+                <small class="field-help">
+                    Solo letras, números y @/./+/-/_. Máximo 150 caracteres.
+                </small>
+            </div>
+
+            <!-- Email -->
+            <div class="auth-field">
+                <label for="{{ form.email.id_for_label }}">📧 Correo electrónico</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <small class="field-error">{{ form.email.errors.0 }}</small>
+                {% endif %}
+            </div>
+
+            <!-- Contraseña -->
+            <div class="auth-field">
+                <label for="{{ form.password1.id_for_label }}">🔒 Contraseña</label>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                <small class="field-error">{{ form.password1.errors.0 }}</small>
+                {% endif %}
+                <small class="field-help">
+                    Mínimo 8 caracteres. No puede ser solo números ni una contraseña común.
+                </small>
+            </div>
+
+            <!-- Confirmar contraseña -->
+            <div class="auth-field">
+                <label for="{{ form.password2.id_for_label }}">🔒 Confirmar contraseña</label>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                <small class="field-error">{{ form.password2.errors.0 }}</small>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-dorado btn-auth">Crear Cuenta →</button>
+        </form>
+
+        <div class="auth-divider"><span>o</span></div>
+
+        <p class="auth-footer">
+            ¿Ya tienes cuenta?
+            <a href="{% url 'login' %}">Inicia sesión</a>
+        </p>
+    </div>
 </div>
+
 {% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Panel de Productos - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion-admin-panel">
+    <div class="admin-header">
+        <div>
+            <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
+            <h2>📊 Gestión de Productos</h2>
+            <p>{{ productos|length }} producto{{ productos|length|pluralize }} en total</p>
+        </div>
+        <a href="{% url 'crear_producto' %}" class="btn-dorado">➕ Nuevo producto</a>
+    </div>
+
+    <div class="admin-stats">
+        <div class="stat-card">
+            <span class="stat-icon">📦</span>
+            <div>
+                <h4>{{ productos|length }}</h4>
+                <p>Productos totales</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">✅</span>
+            <div>
+                <h4>{{ productos|length }}</h4>
+                <p>Disponibles</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">⚠️</span>
+            <div>
+                <h4>0</h4>
+                <p>Stock bajo</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">💰</span>
+            <div>
+                <h4>$0</h4>
+                <p>Ventas hoy</p>
+            </div>
+        </div>
+    </div>
+
+    {% if productos %}
+    <div class="admin-tabla-wrapper">
+        <table class="admin-tabla">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in productos %}
+                <tr>
+                    <td>
+                        {% if p.imagen %}
+                        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="tabla-img">
+                        {% else %}
+                        <div class="tabla-img sin-imagen-mini">👕</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'detalle_producto' p.pk %}" class="tabla-nombre">
+                            {{ p.nombre }}
+                        </a>
+                    </td>
+                    <td><span class="tabla-categoria">{{ p.categoria.nombre }}</span></td>
+                    <td><strong class="tabla-precio">${{ p.precio }}</strong></td>
+                    <td>
+                        {% if p.stock > 10 %}
+                            <span class="badge-stock ok">{{ p.stock }}</span>
+                        {% elif p.stock > 0 %}
+                            <span class="badge-stock low">{{ p.stock }}</span>
+                        {% else %}
+                            <span class="badge-stock out">Agotado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.disponible %}
+                            <span class="badge-disponible">✅ Visible</span>
+                        {% else %}
+                            <span class="badge-oculto">🚫 Oculto</span>
+                        {% endif %}
+                    </td>
+                    <td class="tabla-acciones">
+                        <a href="{% url 'editar_producto' p.pk %}" class="btn-icon edit" title="Editar">✏️</a>
+                        <a href="{% url 'eliminar_producto' p.pk %}" class="btn-icon delete" title="Eliminar">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="sin-productos">
+        <span style="font-size:4rem;">📦</span>
+        <h3>No hay productos todavía</h3>
+        <p>Crea tu primer producto para empezar a vender.</p>
+        <a href="{% url 'crear_producto' %}" class="btn-dorado">➕ Crear primer producto</a>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

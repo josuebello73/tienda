@@ -1,12 +1,75 @@
-{% extends 'tienda/_base.html' %}
+{{% extends 'tienda/base_auth.html' %}
+{% load static %}
+
+{% block titulo %}Iniciar Sesión - Mi Tienda{% endblock %}
+
 {% block contenido %}
-<div class="form-container">
-    <h2>Iniciar Sesión</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Entrar</button>
-    </form>
-    <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a></p>
+
+<div class="auth-page">
+    <!-- Formas decorativas de fondo -->
+    <div class="auth-bg">
+        <div class="auth-bg-shape shape-1"></div>
+        <div class="auth-bg-shape shape-2"></div>
+        <div class="auth-bg-shape shape-3"></div>
+    </div>
+
+    <!-- Tarjeta de login -->
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">👑</span>
+            <h2>Bienvenido de nuevo</h2>
+            <p>Inicia sesión para continuar</p>
+        </div>
+
+        <!-- Mensaje si viene de una acción que requería login -->
+        {% if next %}
+            <div class="auth-notice">
+                🔒 Debes iniciar sesión para continuar con tu compra
+            </div>
+        {% endif %}
+
+        <form method="post" class="auth-form" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="auth-error">
+                {% for error in form.non_field_errors %}
+                    ⚠️ {{ error }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="auth-field">
+                <label for="{{ form.username.id_for_label }}">👤 Usuario</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <small class="field-error">{{ form.username.errors.0 }}</small>
+                {% endif %}
+            </div>
+
+            <div class="auth-field">
+                <label for="{{ form.password.id_for_label }}">🔒 Contraseña</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                <small class="field-error">{{ form.password.errors.0 }}</small>
+                {% endif %}
+            </div>
+
+            <!-- 🔑 ESTE CAMPO ES CLAVE: guarda a dónde volver -->
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <button type="submit" class="btn-dorado btn-auth">
+                Iniciar Sesión →
+            </button>
+        </form>
+
+        <div class="auth-divider"><span>o</span></div>
+
+        <p class="auth-footer">
+            ¿No tienes cuenta?
+            <a href="{% url 'registro' %}">Regístrate aquí</a>
+        </p>
+    </div>
 </div>
+
 {% endblock %}

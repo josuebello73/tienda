@@ -1,15 +1,15 @@
 {% extends 'tienda/_base.html' %}
 {% load static %}
 
-{% block titulo %}Editar: {{ producto.nombre }} - Mi Tienda{% endblock %}
+{% block titulo %}Crear Producto - Mi Tienda{% endblock %}
 
 {% block contenido %}
 
 <section class="seccion-form-admin">
     <div class="form-admin-header">
         <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
-        <h2>✏️ Editar Producto</h2>
-        <p>Modifica los datos de "{{ producto.nombre }}"</p>
+        <h2>➕ Nuevo Producto</h2>
+        <p>Agrega una nueva prenda al catálogo</p>
     </div>
 
     <div class="form-admin-wrapper">
@@ -18,7 +18,9 @@
 
             {% if form.non_field_errors %}
             <div class="form-error">
-                {% for error in form.non_field_errors %}⚠️ {{ error }}{% endfor %}
+                {% for error in form.non_field_errors %}
+                    ⚠️ {{ error }}
+                {% endfor %}
             </div>
             {% endif %}
 
@@ -36,7 +38,7 @@
                 {% if form.descripcion.errors %}<small class="field-error">{{ form.descripcion.errors.0 }}</small>{% endif %}
             </div>
 
-            <!-- Precio y Stock -->
+            <!-- Precio y Stock en fila -->
             <div class="form-row">
                 <div class="form-field">
                     <label for="{{ form.precio.id_for_label }}">💰 Precio (USD) *</label>
@@ -57,29 +59,18 @@
                 {% if form.categoria.errors %}<small class="field-error">{{ form.categoria.errors.0 }}</small>{% endif %}
             </div>
 
-            <!-- Imagen -->
+            <!-- Imagen con preview -->
             <div class="form-field">
                 <label for="{{ form.imagen.id_for_label }}">🖼️ Imagen del producto</label>
-
-                {% if producto.imagen %}
-                <div class="imagen-actual">
-                    <p class="imagen-label">Imagen actual:</p>
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="imagen-preview-actual">
-                </div>
-                {% endif %}
-
                 <div class="upload-zone" id="uploadZone">
-                    <input type="file" name="imagen" id="id_imagen" accept="image/*">
+                    <input type="file" 
+                           name="imagen" 
+                           id="id_imagen" 
+                           accept="image/*">
                     <label for="id_imagen" class="upload-label">
                         <div class="upload-preview" id="uploadPreview">
                             <span class="upload-icon">📷</span>
-                            <span class="upload-text">
-                                {% if producto.imagen %}
-                                    Cambiar imagen (clic o arrastra)
-                                {% else %}
-                                    Haz clic o arrastra una imagen aquí
-                                {% endif %}
-                            </span>
+                            <span class="upload-text">Haz clic o arrastra una imagen aquí</span>
                             <span class="upload-hint">JPG, PNG · Máx 5MB</span>
                         </div>
                     </label>
@@ -97,23 +88,26 @@
 
             <!-- Botones -->
             <div class="form-actions">
-                <a href="{% url 'detalle_producto' producto.pk %}" class="btn-outline">← Cancelar</a>
-                <button type="submit" class="btn-dorado">💾 Guardar cambios</button>
+                <a href="{% url 'lista_productos' %}" class="btn-outline">← Cancelar</a>
+                <button type="submit" class="btn-dorado">💾 Guardar producto</button>
             </div>
         </form>
     </div>
 </section>
 
+<!-- JS para preview de imagen -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const input = document.getElementById('id_imagen');
     const preview = document.getElementById('uploadPreview');
     const zone = document.getElementById('uploadZone');
+
     if (!input || !preview) return;
 
     input.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
+
         const reader = new FileReader();
         reader.onload = function(ev) {
             preview.innerHTML = `<img src="${ev.target.result}" alt="Preview" class="preview-img">`;
@@ -122,8 +116,16 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.readAsDataURL(file);
     });
 
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragging'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
+    // Drag & drop
+    zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('dragging');
+    });
+
+    zone.addEventListener('dragleave', () => {
+        zone.classList.remove('dragging');
+    });
+
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('dragging');

@@ -38,3 +38,6 @@ class Carrito:
 
     def total(self):
         return sum(item['total'] for item in self)
+
+def __len__(self):
+    return sum(item['cantidad'] for item in self.carrito.values())
