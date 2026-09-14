@@ -1,75 +1,72 @@
-{{% extends 'tienda/base_auth.html' %}
+{% extends 'tienda/base_auth.html' %}
 {% load static %}
 
 {% block titulo %}Iniciar Sesión - Mi Tienda{% endblock %}
 
 {% block contenido %}
 
-<div class="auth-page">
-    <!-- Formas decorativas de fondo -->
-    <div class="auth-bg">
-        <div class="auth-bg-shape shape-1"></div>
-        <div class="auth-bg-shape shape-2"></div>
-        <div class="auth-bg-shape shape-3"></div>
+<div class="auth-card">
+    <div class="auth-header">
+        <span class="auth-icon">👑</span>
+        <h2>Bienvenido de nuevo</h2>
+        <p>Inicia sesión para continuar</p>
     </div>
 
-    <!-- Tarjeta de login -->
-    <div class="auth-card">
-        <div class="auth-header">
-            <span class="auth-icon">👑</span>
-            <h2>Bienvenido de nuevo</h2>
-            <p>Inicia sesión para continuar</p>
-        </div>
+    {% if next %}
+    <div class="auth-notice">
+        🔒 Debes iniciar sesión para continuar
+    </div>
+    {% endif %}
 
-        <!-- Mensaje si viene de una acción que requería login -->
-        {% if next %}
-            <div class="auth-notice">
-                🔒 Debes iniciar sesión para continuar con tu compra
-            </div>
+    <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="auth-error">
+            {% for error in form.non_field_errors %}
+                ⚠️ {{ error }}
+            {% endfor %}
+        </div>
         {% endif %}
 
-        <form method="post" class="auth-form" novalidate>
-            {% csrf_token %}
-
-            {% if form.non_field_errors %}
-            <div class="auth-error">
-                {% for error in form.non_field_errors %}
-                    ⚠️ {{ error }}<br>
-                {% endfor %}
-            </div>
+        <div class="auth-field">
+            <label for="{{ form.username.id_for_label }}">👤 Usuario</label>
+            <input type="text"
+                   name="username"
+                   id="{{ form.username.id_for_label }}"
+                   placeholder="Tu nombre de usuario"
+                   autocomplete="username"
+                   required
+                   autofocus>
+            {% if form.username.errors %}
+            <small class="field-error">{{ form.username.errors.0 }}</small>
             {% endif %}
+        </div>
 
-            <div class="auth-field">
-                <label for="{{ form.username.id_for_label }}">👤 Usuario</label>
-                {{ form.username }}
-                {% if form.username.errors %}
-                <small class="field-error">{{ form.username.errors.0 }}</small>
-                {% endif %}
-            </div>
+        <div class="auth-field">
+            <label for="{{ form.password.id_for_label }}">🔒 Contraseña</label>
+            <input type="password"
+                   name="password"
+                   id="{{ form.password.id_for_label }}"
+                   placeholder="Tu contraseña"
+                   autocomplete="current-password"
+                   required>
+            {% if form.password.errors %}
+            <small class="field-error">{{ form.password.errors.0 }}</small>
+            {% endif %}
+        </div>
 
-            <div class="auth-field">
-                <label for="{{ form.password.id_for_label }}">🔒 Contraseña</label>
-                {{ form.password }}
-                {% if form.password.errors %}
-                <small class="field-error">{{ form.password.errors.0 }}</small>
-                {% endif %}
-            </div>
+        <input type="hidden" name="next" value="{{ next }}">
 
-            <!-- 🔑 ESTE CAMPO ES CLAVE: guarda a dónde volver -->
-            <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn-auth">Iniciar Sesión</button>
+    </form>
 
-            <button type="submit" class="btn-dorado btn-auth">
-                Iniciar Sesión →
-            </button>
-        </form>
+    <div class="auth-divider"><span>o</span></div>
 
-        <div class="auth-divider"><span>o</span></div>
-
-        <p class="auth-footer">
-            ¿No tienes cuenta?
-            <a href="{% url 'registro' %}">Regístrate aquí</a>
-        </p>
-    </div>
+    <p class="auth-footer">
+        ¿No tienes cuenta?
+        <a href="{% url 'registro' %}">Regístrate aquí</a>
+    </p>
 </div>
 
 {% endblock %}
