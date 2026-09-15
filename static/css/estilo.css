@@ -279,7 +279,7 @@ main { min-height: 60vh; }
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
-.user-menu:hover .user-dropdown { display: block; }
+.user-dropdown.active { display: block; }
 
 .user-dropdown a {
     display: block;
