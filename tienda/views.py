@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count, Q
 
 from .models import Producto, Categoria, Pedido, PedidoItem
 from .cart import Carrito
@@ -127,6 +127,37 @@ def eliminar_del_carrito(request, producto_id):
     return redirect('ver_carrito')
 
 
+@login_required
+def actualizar_cantidad(request, producto_id):
+    """Actualiza la cantidad de un producto en el carrito."""
+    if request.method != 'POST':
+        return redirect('ver_carrito')
+
+    try:
+        cantidad = int(request.POST.get('cantidad', 1))
+    except (ValueError, TypeError):
+        messages.error(request, "Cantidad inválida.")
+        return redirect('ver_carrito')
+
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    if cantidad < 1:
+        messages.warning(request, "La cantidad mínima es 1.")
+        return redirect('ver_carrito')
+
+    if cantidad > producto.stock:
+        messages.error(
+            request,
+            f"Solo hay {producto.stock} unidades de '{producto.nombre}' disponibles."
+        )
+        return redirect('ver_carrito')
+
+    carrito = Carrito(request)
+    carrito.carrito[str(producto_id)]['cantidad'] = cantidad
+    carrito.guardar()
+
+    messages.success(request, f"Cantidad de '{producto.nombre}' actualizada.")
+    return redirect('ver_carrito')
 # ==================================================
 # CHECKOUT Y PEDIDOS
 # ==================================================
@@ -385,3 +416,44 @@ def eliminar_categoria(request, pk):
         return redirect('lista_categorias')
 
     return render(request, 'tienda/eliminar_categoria.html', {'categoria': categoria})
+
+# ==================================================
+# LISTA ADMIN
+# ==================================================
+
+@staff_member_required
+def lista_admin(request):
+    """Panel de administración con todos los productos y estadísticas."""
+    productos = Producto.objects.all().order_by('-creado')
+
+    # Estadísticas
+    total_productos = productos.count()
+    productos_disponibles = productos.filter(disponible=True, stock__gt=0).count()
+    productos_sin_stock = productos.filter(stock=0).count()
+    productos_stock_bajo = productos.filter(stock__gt=0, stock__lte=5).count()
+
+    valor_inventario = productos.aggregate(
+        total=Sum(F('precio') * F('stock'))
+    )['total'] or 0
+
+    # Ventas (si tienes pedidos)
+    from datetime import date, timedelta
+    hoy = date.today()
+    ventas_hoy = Pedido.objects.filter(
+        creado__date=hoy,
+        estado__in=['pagado', 'enviado', 'entregado']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    # Productos agotados
+    productos_agotados = productos.filter(stock=0)
+
+    return render(request, 'tienda/lista_admin.html', {
+        'productos': productos,
+        'total_productos': total_productos,
+        'productos_disponibles': productos_disponibles,
+        'productos_sin_stock': productos_sin_stock,
+        'productos_stock_bajo': productos_stock_bajo,
+        'productos_agotados': productos_agotados,
+        'valor_inventario': valor_inventario,
+        'ventas_hoy': ventas_hoy,
+    })
