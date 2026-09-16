@@ -309,7 +309,15 @@ main { min-height: 60vh; }
     opacity: 0.8;
 }
 
-.dropdown-logout { color: #ff9c9c !important; }
+.dropdown-logout { 
+    color: #ff9c9c !important;
+    display: block;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    transition: background 0.3s, color 0.3s;
+    background: transparent;
+    border: none;
+}
 
 .dropdown-logout:hover {
     background: rgba(235, 87, 87, 0.15) !important;

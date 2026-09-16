@@ -15,14 +15,9 @@
 <!-- ==================== HEADER ==================== -->
 <header class="site-header">
 
-    <!-- Barra superior -->
-    <div class="header-top">
-        <p>✨ Envío gratis en compras superiores a $50 ✨</p>
-    </div>
-
     <!-- Fila principal: logo · buscador · usuario -->
     <div class="header-main">
-        <a href="{% url 'lista_productos' %}" class="logo">
+        <a href="{% url 'inicio' %}" class="logo">
             <span class="logo-icon">👑</span>
             <span class="logo-text">MI TIENDA</span>
         </a>
@@ -58,7 +53,12 @@
                         {% endif %}
 
                         <div class="dropdown-divider"></div>
-                        <a href="{% url 'logout' %}" class="dropdown-logout">🚪 Cerrar sesión</a>
+                        <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-logout">
+                            🚪 Cerrar sesión
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -71,7 +71,7 @@
 
     <!-- Menú de navegación principal -->
     <nav class="header-menu">
-        <a href="{% url 'lista_productos' %}">Inicio</a>
+        <a href="{% url 'lista_productos' %}">Catálogo</a>
         <a href="{% url 'lista_productos' %}?orden=nuevo">Novedades</a>
         <a href="{% url 'lista_productos' %}?orden=precio_asc">Ofertas</a>
         <a href="{% url 'lista_productos' %}">Hombre</a>
@@ -83,6 +83,11 @@
         {% endif %}
     </nav>
 </header>
+
+    <!-- Barra superior -->
+    <div class="header-top">
+        <p>✨ Envío gratis en compras superiores a $50 ✨</p>
+    </div>
 
 <!-- ==================== MENSAJES ==================== -->
 {% if messages %}

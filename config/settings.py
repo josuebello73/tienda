@@ -127,8 +127,8 @@ MAILERS = {
     },
 }
 
-LOGIN_REDIRECT_URL = 'lista_productos'
-LOGOUT_REDIRECT_URL = 'lista_productos'
+LOGIN_REDIRECT_URL = 'inicio'
+LOGOUT_REDIRECT_URL = 'inicio'
 LOGIN_URL = 'login'
 
 import os

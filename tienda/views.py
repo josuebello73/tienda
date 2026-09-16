@@ -17,6 +17,10 @@ from .forms import RegistroForm, ProductoForm, CategoriaForm
 # ==================================================
 # AUTENTICACIÓN
 # ==================================================
+def inicio(request):
+    """Página de inicio principal de la tienda (Landig page)."""
+    return render(request, 'tienda/inicio.html')
+
 def registro(request):
     """Registro de usuario con formulario extendido."""
     if request.user.is_authenticated:
@@ -48,7 +52,7 @@ def cerrar_sesion(request):
 # ==================================================
 def lista_productos(request):
     """Catálogo público con filtros, búsqueda y ordenamiento."""
-    productos = Producto.objects.filter(disponible=True)
+    productos = Producto.objects.all()
     categorias = Categoria.objects.all()
 
     # Filtro por categoría
@@ -80,7 +84,7 @@ def lista_productos(request):
     else:
         productos = productos.order_by('-creado')
 
-    return render(request, 'tienda/lista.html', {
+    return render(request, 'tienda/lista_productos.html', {
         'productos': productos,
         'categorias': categorias,
     })
