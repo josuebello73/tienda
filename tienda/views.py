@@ -457,3 +457,19 @@ def lista_admin(request):
         'valor_inventario': valor_inventario,
         'ventas_hoy': ventas_hoy,
     })
+
+def detalle_producto(request, pk):
+    # Busca el producto por su ID, si no existe da error 404
+    producto = get_object_or_404(Producto, pk=pk)
+
+    # Busca hasta 4 productos de la MISMA categoría (excluyendo el actual)
+    relacionados = Producto.objects.filter(
+        categoria=producto.categoria,
+        disponible=True
+    ).exclude(pk=producto.pk)[:4]
+
+    # Envía el producto y los relacionados al template
+    return render(request, 'tienda/detalle.html', {
+        'producto': producto,
+        'relacionados': relacionados,
+    })

@@ -1341,7 +1341,7 @@ html, body.auth-body {
 
 /* --- Errores --- */
 .auth-error {
-    padding: 0.9rem 1rem;PÁGINA DEL CARRITO
+    padding: 0.9rem 1rem; PÁGINA DEL CARRITO
     background: rgba(235, 87, 87, 0.15);
     border: 1px solid rgba(235, 87, 87, 0.4);
     border-left: 3px solid #eb5757;
@@ -1533,7 +1533,310 @@ html, body.auth-body {
 
     .auth-messages { top: 4rem; }
 }
+/* ==========================================================================
+   17. PÁGINA DE DETALLE DE PRODUCTO
+   Layout: 2 columnas (imagen a la izquierda, info a la derecha)
+   ========================================================================== */
 
+/* Contenedor principal de toda la sección */
+.seccion-detalle {
+    max-width: 1300px;      /* Ancho máximo */
+    margin: 2rem auto;       /* Centrado con espacio arriba/abajo */
+    padding: 0 2rem;         /* Espacio interno lateral */
+}
+
+/* ---------- BREADCRUMB (migas de pan) ---------- */
+.breadcrumb {
+    display: flex;           /* Elementos en fila */
+    align-items: center;     /* Centrado vertical */
+    gap: 0.6rem;             /* Espacio entre elementos */
+    margin-bottom: 2rem;
+    font-size: 0.85rem;
+    color: var(--gris-texto);
+    flex-wrap: wrap;         /* Se envuelve en móvil */
+}
+
+.breadcrumb a {
+    color: var(--gris-texto);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.breadcrumb a:hover { color: var(--dorado); }
+.breadcrumb span { color: var(--azul-claro); }
+.breadcrumb-actual { color: var(--dorado); font-weight: 500; }
+
+/* ---------- GRID DE 2 COLUMNAS ----------
+   La clave del layout: 
+   - 1fr = mitad izquierda (imagen)
+   - 1fr = mitad derecha (info)
+   - 3rem = espacio entre columnas */
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+/* ---------- COLUMNA IZQUIERDA: IMAGEN ---------- */
+.detalle-imagen-wrapper {
+    position: sticky;        /* Se queda pegada al hacer scroll */
+    top: 200px;              /* A 200px del top (debajo del header) */
+    align-self: start;       /* No se estira verticalmente */
+}
+
+.detalle-imagen-principal {
+    position: relative;      /* Para posicionar badges encima */
+    background: var(--azul-oscuro);
+    border: 1px solid var(--azul-medio);
+    border-radius: 14px;
+    overflow: hidden;        /* Esquinas redondeadas aplican a la imagen */
+    aspect-ratio: 4/5;       /* Proporción fija (retrato) */
+}
+
+.detalle-imagen-principal img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;       /* La imagen cubre sin deformarse */
+    transition: transform 0.5s;
+}
+
+/* Efecto zoom al hacer hover sobre la imagen */
+.detalle-imagen-principal:hover img {
+    transform: scale(1.05);
+}
+
+/* Icono grande cuando no hay imagen */
+.sin-imagen-grande {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem;
+    color: var(--azul-claro);
+    opacity: 0.3;
+}
+
+/* Badges sobre la imagen */
+.detalle-badge {
+    top: 20px;
+    right: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+.detalle-badge-left {
+    top: 20px;
+    left: 20px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+}
+
+/* ---------- COLUMNA DERECHA: INFO ---------- */
+.detalle-info {
+    display: flex;
+    flex-direction: column;  /* Elementos apilados verticalmente */
+    gap: 1rem;               /* Espacio entre cada bloque */
+}
+
+/* Categoría (texto pequeño dorado) */
+.detalle-categoria {
+    display: inline-block;
+    color: var(--dorado);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Nombre del producto (grande, fuente serif) */
+.detalle-nombre {
+    color: var(--blanco-hueso);
+    font-size: 2.2rem;
+    line-height: 1.2;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 0.5rem;
+}
+
+/* Precio con línea arriba y abajo (separador visual) */
+.detalle-precio-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--azul-medio);
+    border-bottom: 1px solid var(--azul-medio);
+}
+
+.detalle-precio {
+    color: var(--dorado);
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Precio tachado (el "antes") */
+.detalle-precio-antes {
+    color: var(--gris-texto);
+    font-size: 1.2rem;
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.detalle-descripcion-corta {
+    color: var(--gris-texto);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* ---------- INDICADOR DE STOCK ---------- */
+.detalle-stock { padding: 0.8rem 0; }
+
+.stock-indicador {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.stock-indicador.ok  { background: rgba(111, 207, 151, 0.15); color: #6fcf97; }
+.stock-indicador.low { background: rgba(242, 201, 76, 0.15);  color: #f2c94c; }
+.stock-indicador.out { background: rgba(235, 87, 87, 0.15);   color: #eb5757; }
+
+/* ---------- BOTÓN "AGREGAR AL CARRITO" ---------- */
+.detalle-acciones { margin: 1rem 0; }
+
+/* Hace que el botón ocupe todo el ancho disponible */
+.btn-full { 
+    width: 100%; 
+    text-align: center; 
+}
+
+/* Cuando el botón es grande y está deshabilitado (sin stock) */
+.btn-deshabilitado.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+}
+
+/* ---------- BENEFICIOS (3 columnas) ----------
+   Enviamos: envío gratis | devolución | pago seguro */
+.detalle-beneficios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);  /* 3 columnas iguales */
+    gap: 0.8rem;
+    padding: 1.2rem 0;
+    border-top: 1px solid var(--azul-medio);
+    border-bottom: 1px solid var(--azul-medio);
+}
+
+.detalle-beneficio {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+}
+
+.detalle-beneficio span { font-size: 1.5rem; }
+.detalle-beneficio strong { 
+    display: block; 
+    color: var(--blanco-hueso); 
+    font-size: 0.85rem; 
+}
+.detalle-beneficio small { 
+    color: var(--gris-texto); 
+    font-size: 0.75rem; 
+}
+
+/* ---------- ACCIONES ADMIN (Editar / Eliminar) ---------- */
+.detalle-admin-acciones {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(212, 175, 55, 0.05);
+    border: 1px dashed var(--dorado);
+    border-radius: 10px;
+}
+
+.btn-admin-detalle {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    border: 1px solid var(--dorado);
+    color: var(--dorado);
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+}
+
+.btn-admin-detalle:hover {
+    background: var(--dorado);
+    color: var(--negro);
+}
+
+/* Variante roja para "Eliminar" */
+.btn-admin-detalle.danger {
+    border-color: #eb5757;
+    color: #eb5757;
+}
+
+.btn-admin-detalle.danger:hover {
+    background: #eb5757;
+    color: white;
+}
+
+/* ---------- DESCRIPCIÓN COMPLETA (debajo del grid) ---------- */
+.detalle-descripcion-completa {
+    background: var(--azul-oscuro);
+    border: 1px solid var(--azul-medio);
+    border-radius: 14px;
+    padding: 2rem;
+    margin-bottom: 4rem;
+}
+
+.detalle-descripcion-completa h2 {
+    color: var(--dorado);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.descripcion-contenido {
+    color: var(--blanco-hueso);
+    line-height: 1.8;
+    font-size: 1rem;
+}
+
+.descripcion-contenido p { margin-bottom: 1rem; }
+
+/* ---------- PRODUCTOS RELACIONADOS ---------- */
+.detalle-relacionados .seccion-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* ---------- RESPONSIVE (móvil) ----------
+   En pantallas < 900px, el grid de 2 columnas se convierte en 1 sola */
+@media (max-width: 900px) {
+    .detalle-grid {
+        grid-template-columns: 1fr;   /* 1 columna en vez de 2 */
+        gap: 2rem;
+    }
+
+    .detalle-imagen-wrapper {
+        position: static;             /* Ya no es sticky */
+    }
+
+    .detalle-nombre { font-size: 1.6rem; }
+    .detalle-precio { font-size: 2rem; }
+
+    .detalle-beneficios {
+        grid-template-columns: 1fr;   /* Beneficios apilados */
+    }
+}
 /* ==========================================================================
    24. PÁGINA DEL CARRITO
    ========================================================================== */
