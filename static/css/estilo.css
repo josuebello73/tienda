@@ -3073,3 +3073,383 @@ html, body.auth-body {
         font-size: 1.4rem;
     }
 }
+/* ==========================================================================
+   19. PÁGINA DE PERFIL
+   ========================================================================== */
+
+/* Contenedor principal: limita ancho y centra */
+.seccion-perfil {
+    max-width: 1100px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+/* ==================================================
+   CABECERA CON AVATAR
+================================================== */
+
+/* Tarjeta de cabecera con degradado y adorno dorado */
+.perfil-header {
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    margin-bottom: 2.5rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--azul-oscuro) 0%, #0d1f38 100%);
+    border: 1px solid var(--azul-medio);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Adorno circular dorado en la esquina (decorativo) */
+.perfil-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12), transparent 70%);
+    pointer-events: none;
+}
+
+/* Avatar circular con inicial */
+.perfil-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--dorado), var(--dorado-claro));
+    color: var(--negro);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.perfil-info { position: relative; z-index: 1; }
+
+.perfil-info h2 {
+    color: var(--dorado);
+    font-size: 1.9rem;
+    margin: 0.3rem 0 0.4rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.perfil-info p {
+    color: var(--gris-texto);
+    font-size: 0.92rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Badge dorado para admins */
+.perfil-admin-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid var(--dorado);
+    color: var(--dorado);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* ==================================================
+   TARJETAS DE ESTADÍSTICAS (4 columnas)
+================================================== */
+.perfil-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.perfil-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem;
+    background: var(--azul-oscuro);
+    border: 1px solid var(--azul-medio);
+    border-radius: 14px;
+    transition: all 0.3s;
+}
+
+.perfil-stat:hover {
+    border-color: var(--dorado);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.15);
+}
+
+.perfil-stat-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+}
+
+.perfil-stat-info h4 {
+    color: var(--dorado);
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+    font-family: 'Playfair Display', serif;
+    line-height: 1.1;
+}
+
+.perfil-stat-info p {
+    color: var(--gris-texto);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin: 0;
+}
+
+.perfil-stat-link {
+    color: var(--dorado);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+}
+
+.perfil-stat-link:hover {
+    color: var(--dorado-claro);
+    text-decoration: underline;
+}
+
+/* ==================================================
+   GRID DE FORMULARIOS (2 columnas)
+================================================== */
+.perfil-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Tarjeta contenedora de cada formulario */
+.perfil-card {
+    background: var(--azul-oscuro);
+    border: 1px solid var(--azul-medio);
+    border-radius: 14px;
+    padding: 1.8rem;
+    transition: border-color 0.3s;
+}
+
+.perfil-card:hover { border-color: rgba(212, 175, 55, 0.4); }
+
+/* Variante que ocupa las 2 columnas */
+.perfil-card-full {
+    grid-column: 1 / -1;
+    margin-bottom: 1.5rem;
+}
+
+.perfil-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--azul-medio);
+    flex-wrap: wrap;
+}
+
+.perfil-card-header h3 {
+    color: var(--dorado);
+    font-size: 1.15rem;
+    margin-bottom: 0.2rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.perfil-card-header p {
+    color: var(--gris-texto);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.link-ver-todos {
+    color: var(--dorado);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: transform 0.3s;
+}
+
+.link-ver-todos:hover { transform: translateX(4px); }
+
+/* ==================================================
+   FORMULARIO DEL PERFIL
+================================================== */
+.perfil-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+/* Fila interna (nombre + apellido lado a lado) */
+.perfil-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.perfil-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.perfil-field label {
+    color: var(--dorado-claro);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.perfil-field input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--negro-suave);
+    border: 1px solid var(--azul-medio);
+    border-radius: 8px;
+    color: var(--blanco-hueso);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+.perfil-field input:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.perfil-field input::placeholder {
+    color: #666;
+    font-style: italic;
+}
+
+/* Input deshabilitado (username no editable) */
+.input-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.perfil-form .btn-full { margin-top: 0.5rem; }
+
+/* ==================================================
+   ÚLTIMOS PEDIDOS
+================================================== */
+.perfil-pedidos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.perfil-pedido-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    background: var(--negro-suave);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--blanco-hueso);
+    transition: all 0.3s;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.perfil-pedido-row:hover {
+    border-color: var(--dorado);
+    background: rgba(212, 175, 55, 0.05);
+    transform: translateX(4px);
+}
+
+.perfil-pedido-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.perfil-pedido-info strong {
+    color: var(--blanco-hueso);
+    font-size: 1rem;
+}
+
+.perfil-pedido-fecha {
+    color: var(--gris-texto);
+    font-size: 0.8rem;
+}
+
+.perfil-pedido-derecha {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.perfil-pedido-total {
+    color: var(--dorado);
+    font-weight: 700;
+    font-size: 1.15rem;
+    font-family: 'Playfair Display', serif;
+}
+
+/* ==================================================
+   CERRAR SESIÓN
+================================================== */
+.perfil-logout {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--azul-medio);
+}
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+@media (max-width: 768px) {
+    .seccion-perfil {
+        padding: 0 1rem;
+        margin: 2rem auto;
+    }
+
+    .perfil-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .perfil-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 2.2rem;
+    }
+
+    .perfil-info h2 { font-size: 1.5rem; }
+
+    .perfil-stats { grid-template-columns: 1fr 1fr; }
+    .perfil-grid { grid-template-columns: 1fr; }
+    .perfil-form-row { grid-template-columns: 1fr; }
+
+    .perfil-pedido-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .perfil-pedido-derecha {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .perfil-stats { grid-template-columns: 1fr; }
+}
