@@ -3453,3 +3453,271 @@ html, body.auth-body {
 @media (max-width: 480px) {
     .perfil-stats { grid-template-columns: 1fr; }
 }
+/* ==========================================================================
+   20. FORMULARIO DE ADMIN (Crear / Editar producto y categoría)
+   ========================================================================== */
+
+/* Contenedor principal: ancho limitado y centrado */
+.seccion-form-admin {
+    max-width: 700px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+}
+
+/* ---------- Encabezado centrado ---------- */
+.form-admin-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-admin-header h2 {
+    color: var(--dorado);
+    font-size: 2rem;
+    margin: 0.5rem 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.form-admin-header p {
+    color: var(--gris-texto);
+}
+
+/* ---------- Tarjeta que envuelve el formulario ---------- */
+.form-admin-wrapper {
+    background: var(--azul-oscuro);
+    border: 1px solid var(--azul-medio);
+    border-radius: 14px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- El formulario en sí ----------
+   flex-direction: column → cada campo debajo del otro */
+.form-admin {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* ---------- Cada campo (label + input) ----------
+   También column para que label quede arriba del input */
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* ---------- Fila con 2 columnas (precio | stock) ---------- */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ---------- Labels ---------- */
+.form-field label {
+    color: var(--dorado-claro);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ---------- Inputs, textareas y selects ----------
+   Esta regla afecta a TODOS los inputs dentro del form admin
+   (excepto checkbox y file que tienen sus propios estilos) */
+.form-input,
+.form-file,
+.form-admin input[type="text"],
+.form-admin input[type="number"],
+.form-admin input[type="email"],
+.form-admin textarea,
+.form-admin select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: var(--negro-suave);
+    border: 1px solid var(--azul-medio);
+    border-radius: 8px;
+    color: var(--blanco-hueso);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+/* Al hacer foco → borde dorado + glow */
+.form-admin input:focus,
+.form-admin textarea:focus,
+.form-admin select:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.form-admin textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ==================================================
+   CHECKBOX "DISPONIBLE"
+================================================== */
+.form-check-field {
+    padding: 0.5rem 0;
+}
+
+.check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--blanco-hueso);
+    cursor: pointer;
+    text-transform: none;
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+.check-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--dorado);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* ==================================================
+   ZONA DE SUBIDA DE IMAGEN (upload-zone)
+   Es un div con borde punteado donde se arrastra la imagen
+================================================== */
+.upload-zone {
+    position: relative;
+    border: 2px dashed var(--azul-claro);
+    border-radius: 10px;
+    background: var(--negro-suave);
+    transition: all 0.3s;
+    overflow: hidden;
+}
+
+/* Al hacer hover o arrastrar sobre la zona → borde dorado */
+.upload-zone:hover,
+.upload-zone.dragging {
+    border-color: var(--dorado);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+/* Cuando ya tiene imagen cargada → borde sólido */
+.upload-zone.has-image {
+    border-style: solid;
+    border-color: var(--dorado);
+}
+
+/* El input file está "invisible" pero cubre toda la zona
+   Esto hace que al hacer clic en cualquier parte se abra el selector */
+.upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;              /* top:0; right:0; bottom:0; left:0 */
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+}
+
+/* El label es solo visual, no interactivo (el input maneja el clic) */
+.upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    min-height: 180px;
+}
+
+/* Contenido interno de la zona (icono + texto) */
+.upload-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    opacity: 0.6;
+}
+
+.upload-text {
+    color: var(--blanco-hueso);
+    font-weight: 500;
+}
+
+.upload-hint {
+    color: var(--gris-texto);
+    font-size: 0.8rem;
+}
+
+/* La imagen de preview que se muestra después de elegir un archivo */
+.preview-img {
+    max-width: 100%;
+    max-height: 280px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* ==================================================
+   BOTONES Y ERRORES
+================================================== */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--azul-medio);
+}
+
+/* Mensaje de error general del formulario */
+.form-error {
+    padding: 1rem;
+    background: rgba(235, 87, 87, 0.15);
+    border-left: 3px solid #eb5757;
+    border-radius: 6px;
+    color: #ff9c9c;
+    font-size: 0.9rem;
+}
+
+/* Error debajo de un campo específico */
+.field-error {
+    color: #ff9c9c;
+    font-size: 0.8rem;
+    display: block;
+}
+
+/* ==================================================
+   RESPONSIVE (móvil)
+   En pantallas < 600px → 1 columna en vez de 2
+================================================== */
+@media (max-width: 600px) {
+    .seccion-form-admin {
+        padding: 0 1rem;
+        margin: 2rem auto;
+    }
+
+    .form-admin-wrapper {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions > * {
+        width: 100%;
+        text-align: center;
+    }
+}
