@@ -229,13 +229,19 @@ def confirmacion_pedido(request, pedido_id):
 
 @login_required
 def historial_pedidos(request):
+    # Filtra los pedidos del usuario actual, ordenados del más reciente al más antiguo
     pedidos = Pedido.objects.filter(usuario=request.user).order_by('-creado')
+
+    # Envía la lista al template
     return render(request, 'tienda/historial_pedidos.html', {'pedidos': pedidos})
 
 
 @login_required
 def detalle_pedido(request, pedido_id):
+    # get_object_or_404 busca el pedido por ID, PERO SOLO si pertenece al usuario
+    # Si no es suyo, devuelve 404 (seguridad)
     pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+
     return render(request, 'tienda/detalle_pedido.html', {'pedido': pedido})
 
 

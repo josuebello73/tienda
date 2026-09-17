@@ -2783,3 +2783,293 @@ html, body.auth-body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================================================
+   18. HISTORIAL DE PEDIDOS
+   Muestra los pedidos del usuario en tarjetas o un estado vacío
+   ========================================================================== */
+
+/* ---------- Contenedor principal ----------
+   max-width: limita el ancho para que no se estire en pantallas grandes
+   margin: centra horizontalmente
+   padding: espacio interno lateral */
+.seccion-historial {
+    max-width: 900px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+/* ---------- Encabezado ----------
+   Centrado con el título y la info del usuario */
+.historial-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.historial-header h1 {
+    color: var(--dorado);
+    font-size: 2.2rem;
+    margin: 0.5rem 0 0.8rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.historial-header p {
+    color: var(--gris-texto);
+    font-size: 1rem;
+}
+
+.historial-header strong {
+    color: var(--dorado);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   LISTA DE PEDIDOS (cuando SÍ hay pedidos)
+   ========================================================================== */
+
+/* Contenedor vertical con espacio entre tarjetas */
+.pedidos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ---------- Tarjeta de cada pedido ----------
+   Es como una "card" con borde y esquinas redondeadas */
+.pedido-card {
+    background: var(--azul-oscuro);
+    border: 1px solid var(--azul-medio);
+    border-radius: 14px;
+    padding: 1.5rem;
+    transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+/* Al pasar el mouse se ilumina con borde dorado */
+.pedido-card:hover {
+    border-color: var(--dorado);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.12);
+}
+
+/* ---------- Cabecera del pedido ----------
+   Usa flexbox para alinear #pedido a la izquierda y estado a la derecha */
+.pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--azul-medio);
+    margin-bottom: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pedido-header-info h3 {
+    color: var(--dorado);
+    font-size: 1.25rem;
+    margin-bottom: 0.3rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.pedido-fecha {
+    color: var(--gris-texto);
+    font-size: 0.85rem;
+}
+
+/* ---------- Badge de estado ----------
+   Píldora con color según el estado del pedido */
+.pedido-estado {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* Colores por estado (coinciden con los del modelo Pedido) */
+.estado-pendiente { background: #f2c94c; color: var(--negro); }
+.estado-pagado    { background: #6fcf97; color: var(--negro); }
+.estado-enviado   { background: var(--azul-claro); color: white; }
+.estado-entregado { background: var(--dorado); color: var(--negro); }
+.estado-cancelado { background: #999; color: white; }
+
+/* ---------- Items del pedido ----------
+   Cada producto comprado aparece en una fila */
+.pedido-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.pedido-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 0.9rem;
+    background: var(--negro-suave);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pedido-item-nombre {
+    color: var(--blanco-hueso);
+}
+
+.pedido-item-nombre strong {
+    color: var(--dorado);
+    margin-right: 0.3rem;
+}
+
+.pedido-item-precio {
+    color: var(--gris-texto);
+    font-size: 0.85rem;
+}
+
+.pedido-item-precio strong {
+    color: var(--dorado);
+    font-size: 0.95rem;
+}
+
+/* ---------- Footer del pedido ----------
+   Total a la izquierda, acciones a la derecha */
+.pedido-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--azul-medio);
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pedido-total-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.pedido-total-label {
+    color: var(--gris-texto);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.pedido-total {
+    color: var(--dorado);
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+}
+
+.pedido-acciones {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pedido-ref {
+    color: var(--gris-texto);
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+    background: rgba(212, 175, 55, 0.08);
+    border-radius: 6px;
+}
+
+/* ==========================================================================
+   ESTADO VACÍO (cuando NO hay pedidos)
+   ========================================================================== */
+
+/* Caja con borde punteado que ocupa todo el ancho */
+.historial-vacio {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: var(--azul-oscuro);
+    border: 2px dashed var(--azul-claro);
+    border-radius: 16px;
+    margin-top: 2rem;
+}
+
+.historial-vacio-icon {
+    font-size: 5rem;
+    opacity: 0.4;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.historial-vacio h3 {
+    color: var(--dorado);
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.historial-vacio p {
+    color: var(--gris-texto);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ==========================================================================
+   RESPONSIVE (móvil)
+   ========================================================================== */
+@media (max-width: 600px) {
+    .seccion-historial {
+        padding: 0 1rem;
+        margin: 2rem auto;
+    }
+
+    .historial-header h1 {
+        font-size: 1.6rem;
+    }
+
+    /* Cabecera del pedido se apila verticalmente */
+    .pedido-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Item del pedido se apila */
+    .pedido-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+    }
+
+    /* Footer se apila */
+    .pedido-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pedido-acciones {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .pedido-acciones .btn-outline {
+        width: 100%;
+        text-align: center;
+    }
+
+    .historial-vacio {
+        padding: 3rem 1.5rem;
+    }
+
+    .historial-vacio-icon {
+        font-size: 3.5rem;
+    }
+
+    .historial-vacio h3 {
+        font-size: 1.4rem;
+    }
+}
