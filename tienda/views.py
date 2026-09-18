@@ -12,6 +12,8 @@ from django.db.models import Sum, F, Count, Q
 from .models import Producto, Categoria, Pedido, PedidoItem
 from .cart import Carrito
 from .forms import RegistroForm, ProductoForm, CategoriaForm
+import uuid
+from django.utils import timezone
 
 
 # ==================================================
@@ -479,3 +481,56 @@ def detalle_producto(request, pk):
         'producto': producto,
         'relacionados': relacionados,
     })
+
+@login_required
+def checkout(request):
+    carrito = Carrito(request)
+
+    if len(carrito) == 0:
+        messages.warning(request, "Tu carrito está vacío.")
+        return redirect('lista_productos')
+
+    if request.method == 'POST':
+        # Obtener método de pago elegido
+        metodo = request.POST.get('metodo_pago', 'transferencia')
+
+        # Validar stock
+        for item in carrito:
+            if item['producto'].stock < item['cantidad']:
+                messages.error(request, f"Stock insuficiente para '{item['producto'].nombre}'.")
+                return redirect('ver_carrito')
+
+        # Crear pedido
+        pedido = Pedido.objects.create(
+            usuario=request.user,
+            total=carrito.total(),
+            metodo_pago=metodo,
+        )
+
+        # Crear items y descontar stock
+        for item in carrito:
+            producto = item['producto']
+            PedidoItem.objects.create(
+                pedido=pedido,
+                producto=producto,
+                precio=item['precio'],
+                cantidad=item['cantidad']
+            )
+            producto.stock -= item['cantidad']
+            if producto.stock <= 0:
+                producto.disponible = False
+            producto.save()
+
+        del request.session['carrito']
+
+        # Redirigir según método elegido
+        if metodo == 'transferencia':
+            return redirect('pago_transferencia', pedido_id=pedido.id)
+        elif metodo == 'mercadopago':
+            return redirect('pago_mercadopago', pedido_id=pedido.id)
+        elif metodo == 'binance':
+            return redirect('pago_binance', pedido_id=pedido.id)
+        elif metodo == 'zelle':
+            return redirect('pago_zelle', pedido_id=pedido.id)
+
+    return render(request, 'tienda/checkout.html', {'carrito': carrito})
