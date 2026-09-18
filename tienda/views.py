@@ -360,10 +360,22 @@ def eliminar_producto(request, pk):
 # ADMIN: CATEGORÍAS (CRUD)
 # ==================================================
 @staff_member_required
+@staff_member_required
 def lista_categorias(request):
+    """Panel de administración de categorías con estadísticas."""
     categorias = Categoria.objects.all().order_by('nombre')
-    return render(request, 'tienda/lista_categorias.html', {'categorias': categorias})
 
+    # Estadísticas para las tarjetas superiores
+    categorias_con_productos = categorias.filter(productos__isnull=False).distinct().count()
+    categorias_vacias = categorias.filter(productos__isnull=True).count()
+    total_productos = Producto.objects.count()
+
+    return render(request, 'tienda/lista_categorias.html', {
+        'categorias': categorias,
+        'categorias_con_productos': categorias_con_productos,
+        'categorias_vacias': categorias_vacias,
+        'total_productos': total_productos,
+    })
 
 @staff_member_required
 def crear_categoria(request):

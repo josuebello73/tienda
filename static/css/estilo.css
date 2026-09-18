@@ -3721,3 +3721,79 @@ html, body.auth-body {
         text-align: center;
     }
 }
+
+/* ==========================================================================
+   27. CATEGORÍAS - ESTILOS ESPECÍFICOS
+   Estas clases solo se usan en la página de categorías
+   ========================================================================== */
+
+/* Número de fila en la tabla */
+.tabla-numero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    color: var(--dorado);
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Celda del nombre con icono + texto */
+.tabla-categoria-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 200px;
+}
+
+/* Icono cuadrado dorado al lado del nombre */
+.tabla-categoria-icono {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--azul-medio), var(--azul-oscuro));
+    border: 1px solid var(--azul-medio);
+    border-radius: 10px;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.admin-fila:hover .tabla-categoria-icono {
+    transform: scale(1.08) rotate(-5deg);
+    border-color: var(--dorado);
+}
+
+/* Texto de descripción en la tabla */
+.tabla-descripcion {
+    color: var(--gris-texto);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    display: block;
+    max-width: 350px;
+}
+
+/* Texto cuando no hay descripción */
+.tabla-sin-dato {
+    color: #666;
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+/* Ajuste responsive: en móvil, la tabla se hace scroll horizontal */
+@media (max-width: 768px) {
+    .tabla-descripcion {
+        max-width: 200px;
+    }
+
+    .tabla-categoria-cell {
+        min-width: 150px;
+    }
+}
