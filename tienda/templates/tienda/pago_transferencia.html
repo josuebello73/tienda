@@ -1,167 +1,45 @@
 {% extends 'tienda/_base.html' %}
-{% load static %}
-
-{% block titulo %}Pago por Transferencia - Mi Tienda{% endblock %}
-
-<!-- ⬇️ Carga el CSS específico SOLO en esta página -->
-{% block css_extra %}
-<link rel="stylesheet" href="{% static 'css/pago.css' %}">
-{% endblock %}
+{% block titulo %}Pago por Transferencia{% endblock %}
 
 {% block contenido %}
+<div class="pago-info">
+    <h2>💳 Pago por Transferencia Bancaria</h2>
+    <p class="subtitulo">Realiza la transferencia y sube tu comprobante para confirmar tu pedido.</p>
 
-<section class="seccion-pago">
+    <div class="datos-banco">
+        <h3>📌 Datos de la cuenta:</h3>
+        <ul>
+            <li><strong>Banco:</strong> Banco Nacional</li>
+            <li><strong>Titular:</strong> Mi Tienda C.A.</li>
+            <li><strong>Cuenta:</strong> 0123-4567-89-0123456789</li>
+            <li><strong>Tipo:</strong> Cuenta Corriente</li>
+            <li><strong>Email:</strong> pagos@mitienda.com</li>
+        </ul>
 
-    <!-- ==================== ENCABEZADO ==================== -->
-    <div class="pago-header">
-        <span class="seccion-tag">PASO FINAL</span>
-        <h1>🏦 Pago por Transferencia</h1>
-        <p>Realiza la transferencia y sube tu comprobante para confirmar el pedido</p>
+        <div class="monto-destacado">
+            <p><strong>Monto a transferir:</strong></p>
+            <p class="monto">${{ pedido.total }}</p>
+            <p><strong>Referencia:</strong> Pedido #{{ pedido.id }}</p>
+        </div>
     </div>
 
-    <div class="pago-card">
+    <form method="post" enctype="multipart/form-data" class="form-pago">
+        {% csrf_token %}
 
-        <!-- ==================== DATOS BANCARIOS ==================== -->
-        <div class="pago-datos">
-            <h3>📌 Datos de la cuenta</h3>
+        <label for="referencia">Número de referencia de tu transferencia *</label>
+        <input type="text" id="referencia" name="referencia" 
+               placeholder="Ej: 00123456" required>
 
-            <ul class="pago-datos-lista">
-                <li>
-                    <span class="label">Banco</span>
-                    <span class="valor">Banco Nacional</span>
-                </li>
-                <li>
-                    <span class="label">Titular</span>
-                    <span class="valor">Mi Tienda C.A.</span>
-                </li>
-                <li>
-                    <span class="label">Cuenta</span>
-                    <span class="valor">0123-4567-89-0123456789</span>
-                </li>
-                <li>
-                    <span class="label">Tipo</span>
-                    <span class="valor">Cuenta Corriente</span>
-                </li>
-                <li>
-                    <span class="label">Email</span>
-                    <span class="valor">pagos@mitienda.com</span>
-                </li>
-            </ul>
-        </div>
+        <label for="comprobante">Sube tu comprobante (imagen o PDF) *</label>
+        <input type="file" id="comprobante" name="comprobante" 
+               accept="image/*,application/pdf" required>
 
-        <!-- ==================== MONTO DESTACADO ==================== -->
-        <div class="pago-monto">
-            <p class="pago-monto-label">Monto a transferir</p>
-            <p class="pago-monto-valor">${{ pedido.total }}</p>
-            <p class="pago-monto-referencia">
-                Referencia: <strong>Pedido #{{ pedido.id }}</strong>
-            </p>
-        </div>
+        <button type="submit" class="btn-dorado">✅ Confirmar Pago</button>
+    </form>
 
-        <!-- ==================== FORMULARIO ====================
-             enctype="multipart/form-data" es OBLIGATORIO para subir archivos -->
-        <form method="post" enctype="multipart/form-data" class="pago-form">
-            {% csrf_token %}
-
-            <!-- ---------- Número de referencia ---------- -->
-            <div class="pago-field">
-                <label for="referencia">🔖 Número de referencia *</label>
-                <input type="text"
-                       id="referencia"
-                       name="referencia"
-                       placeholder="Ej: 00123456"
-                       required>
-            </div>
-
-            <!-- ---------- Comprobante ---------- -->
-            <div class="pago-field">
-                <label for="comprobante">📎 Comprobante de pago *</label>
-
-                <div class="pago-upload" id="uploadZone">
-                    <input type="file"
-                           id="comprobante"
-                           name="comprobante"
-                           accept="image/*,application/pdf"
-                           required>
-
-                    <div class="pago-upload-inner" id="uploadInner">
-                        <span class="pago-upload-icon">📷</span>
-                        <span class="pago-upload-text">Haz clic o arrastra tu comprobante aquí</span>
-                        <span class="pago-upload-hint">Imagen o PDF · Máx 5 MB</span>
-                    </div>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-dorado btn-full">
-                ✅ Confirmar Pago
-            </button>
-        </form>
-
-        <!-- ==================== AVISO ==================== -->
-        <div class="pago-aviso">
-            ⏳ <strong>Verificaremos tu pago en un plazo de 24 horas.</strong>
-            Recibirás una notificación cuando se confirme tu transferencia.
-        </div>
-
-    </div>
-</section>
-
-<!-- ==========================================================================
-     SCRIPT PARA PREVIEW DEL COMPROBANTE
-     Cuando el usuario elige un archivo, se muestra al instante en la zona
-     ========================================================================== -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('comprobante');
-    const inner = document.getElementById('uploadInner');
-    const zone = document.getElementById('uploadZone');
-    if (!input || !inner || !zone) return;
-
-    // Al cambiar el input file → mostrar preview
-    input.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        zone.classList.add('has-file');
-
-        // Si es imagen → mostrar preview con miniatura
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                inner.innerHTML = `
-                    <img src="${ev.target.result}" class="pago-upload-preview" alt="Comprobante">
-                    <span class="pago-upload-filename">✅ ${file.name}</span>
-                `;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // Si es PDF u otro → solo mostrar el nombre
-            inner.innerHTML = `
-                <span class="pago-upload-icon">📄</span>
-                <span class="pago-upload-filename">✅ ${file.name}</span>
-            `;
-        }
-    });
-
-    // Efecto visual al arrastrar
-    zone.addEventListener('dragover', e => {
-        e.preventDefault();
-        zone.classList.add('dragging');
-    });
-
-    zone.addEventListener('dragleave', () => {
-        zone.classList.remove('dragging');
-    });
-
-    zone.addEventListener('drop', e => {
-        e.preventDefault();
-        zone.classList.remove('dragging');
-        if (e.dataTransfer.files.length) {
-            input.files = e.dataTransfer.files;
-            input.dispatchEvent(new Event('change'));
-        }
-    });
-});
-</script>
-
+    <p class="nota">
+        ⚠️ Tu pedido será verificado por nuestro equipo en un plazo de 24 horas.
+        Recibirás un correo cuando se confirme.
+    </p>
+</div>
 {% endblock %}

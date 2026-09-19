@@ -9,7 +9,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.db.models import Sum, F, Count, Q
 
-from .models import Producto, Categoria, Pedido, PedidoItem
+from .models import Producto, Categoria, Pedido, PedidoItem, Perfil
 from .cart import Carrito
 from .forms import RegistroForm, ProductoForm, CategoriaForm
 import uuid
@@ -252,7 +252,9 @@ def detalle_pedido(request, pedido_id):
 # ==================================================
 @login_required
 def mi_perfil(request):
-    """Editar datos personales y cambiar contraseña."""
+    """Editar datos personales, foto de perfil y cambiar contraseña."""
+    perfil, _ = Perfil.objects.get_or_create(usuario=request.user)
+
     if request.method == 'POST':
         accion = request.POST.get('accion')
 
@@ -263,7 +265,19 @@ def mi_perfil(request):
             user.last_name = request.POST.get('last_name', '').strip()
             user.email = request.POST.get('email', '').strip()
             user.save()
-            messages.success(request, "Tus datos fueron actualizados correctamente.")
+
+            if request.POST.get('eliminar_avatar') == 'on':
+                if perfil.avatar:
+                    perfil.avatar.delete(save=False)
+                perfil.avatar = None
+                perfil.save()
+                messages.success(request, "Tu foto de perfil se ha eliminado correctamente.")
+            elif 'avatar' in request.FILES and request.FILES['avatar']:
+                perfil.avatar = request.FILES['avatar']
+                perfil.save()
+                messages.success(request, "Tu foto de perfil se ha actualizado correctamente.")
+            else:
+                messages.success(request, "Tus datos fueron actualizados correctamente.")
             return redirect('mi_perfil')
 
         # --- Cambiar contraseña ---
@@ -282,10 +296,10 @@ def mi_perfil(request):
     total_pedidos = Pedido.objects.filter(usuario=request.user).count()
 
     return render(request, 'tienda/mi_perfil.html', {
+        'perfil': perfil,
         'pedidos_usuario': pedidos_usuario,
         'total_pedidos': total_pedidos,
     })
-
 
 # ==================================================
 # ADMIN: PRODUCTOS (CRUD)

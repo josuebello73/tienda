@@ -1,7 +1,6 @@
 from decimal import Decimal
 from .models import Producto
 
-
 class Carrito:
     def __init__(self, request):
         self.session = request.session
@@ -13,10 +12,7 @@ class Carrito:
     def agregar(self, producto, cantidad=1):
         producto_id = str(producto.id)
         if producto_id not in self.carrito:
-            self.carrito[producto_id] = {
-                'cantidad': 0,
-                'precio': str(producto.precio)
-            }
+            self.carrito[producto_id] = {'cantidad': 0, 'precio': str(producto.precio)}
         self.carrito[producto_id]['cantidad'] += cantidad
         self.guardar()
 
@@ -40,8 +36,8 @@ class Carrito:
             item['total'] = item['precio'] * item['cantidad']
             yield item
 
-    def __len__(self):                              # ⬅️ AGREGA ESTO
-        return sum(item['cantidad'] for item in self.carrito.values())
-
     def total(self):
         return sum(item['total'] for item in self)
+
+def __len__(self):
+    return sum(item['cantidad'] for item in self.carrito.values())

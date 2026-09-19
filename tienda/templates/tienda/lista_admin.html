@@ -5,120 +5,54 @@
 
 {% block contenido %}
 
-<section class="admin-panel">
-
-    <!-- ==================== ENCABEZADO ==================== -->
-    <div class="admin-panel-header">
-        <div class="admin-panel-titulo">
+<section class="seccion-admin-panel">
+    <div class="admin-header">
+        <div>
             <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
-            <h1>📊 Gestión de Productos</h1>
-            <p>{{ total_productos }} producto{{ total_productos|pluralize }} en catálogo</p>
+            <h2>📊 Gestión de Productos</h2>
+            <p>{{ productos|length }} producto{{ productos|length|pluralize }} en total</p>
         </div>
-        <div class="admin-panel-acciones">
-            <a href="{% url 'lista_categorias' %}" class="btn-outline">🏷️ Categorías</a>
-            <a href="{% url 'lista_pedidos_admin' %}" class="btn-outline">📦 Pedidos</a>
-            <a href="{% url 'crear_producto' %}" class="btn-dorado">➕ Nuevo producto</a>
-        </div>
+        <a href="{% url 'crear_producto' %}" class="btn-dorado">➕ Nuevo producto</a>
     </div>
 
-    <!-- ==================== TARJETAS DE ESTADÍSTICAS ==================== -->
-    <div class="admin-stats-grid">
-
-        <div class="admin-stat-card total">
-            <div class="stat-card-icon">📦</div>
-            <div class="stat-card-content">
-                <h3>{{ total_productos }}</h3>
+    <div class="admin-stats">
+        <div class="stat-card">
+            <span class="stat-icon">📦</span>
+            <div>
+                <h4>{{ productos|length }}</h4>
                 <p>Productos totales</p>
             </div>
-            <div class="stat-card-bg"></div>
         </div>
-
-        <div class="admin-stat-card disponible">
-            <div class="stat-card-icon">✅</div>
-            <div class="stat-card-content">
-                <h3>{{ productos_disponibles }}</h3>
+        <div class="stat-card">
+            <span class="stat-icon">✅</span>
+            <div>
+                <h4>{{ productos|length }}</h4>
                 <p>Disponibles</p>
             </div>
-            <div class="stat-card-bg"></div>
         </div>
-
-        <div class="admin-stat-card bajo">
-            <div class="stat-card-icon">⚠️</div>
-            <div class="stat-card-content">
-                <h3>{{ productos_stock_bajo }}</h3>
+        <div class="stat-card">
+            <span class="stat-icon">⚠️</span>
+            <div>
+                <h4>0</h4>
                 <p>Stock bajo</p>
             </div>
-            <div class="stat-card-bg"></div>
         </div>
-
-        <div class="admin-stat-card agotado">
-            <div class="stat-card-icon">❌</div>
-            <div class="stat-card-content">
-                <h3>{{ productos_sin_stock }}</h3>
-                <p>Agotados</p>
-            </div>
-            <div class="stat-card-bg"></div>
-        </div>
-
-        <div class="admin-stat-card dinero">
-            <div class="stat-card-icon">💰</div>
-            <div class="stat-card-content">
-                <h3>${{ valor_inventario|floatformat:0 }}</h3>
-                <p>Valor inventario</p>
-            </div>
-            <div class="stat-card-bg"></div>
-        </div>
-
-        <div class="admin-stat-card ventas">
-            <div class="stat-card-icon">📈</div>
-            <div class="stat-card-content">
-                <h3>${{ ventas_hoy|floatformat:2 }}</h3>
+        <div class="stat-card">
+            <span class="stat-icon">💰</span>
+            <div>
+                <h4>$0</h4>
                 <p>Ventas hoy</p>
             </div>
-            <div class="stat-card-bg"></div>
-        </div>
-
-    </div>
-
-    <!-- ==================== ALERTAS ==================== -->
-    {% if productos_agotados %}
-    <div class="admin-alerta-agotados">
-        <span class="alerta-icon">⚠️</span>
-        <div>
-            <strong>{{ productos_agotados.count }} producto{{ productos_agotados.count|pluralize }} agotado{{ productos_agotados.count|pluralize }}</strong>
-            <p>Revisa el inventario para reabastecer.</p>
         </div>
     </div>
-    {% endif %}
 
-    <!-- ==================== FILTROS + BÚSQUEDA ==================== -->
-    <div class="admin-toolbar">
-        <form method="get" class="admin-buscador">
-            <input type="text" name="q" placeholder="🔍 Buscar producto..." value="{{ request.GET.q }}">
-            <select name="estado">
-                <option value="">Todos los estados</option>
-                <option value="disponibles" {% if request.GET.estado == 'disponibles' %}selected{% endif %}>Disponibles</option>
-                <option value="bajo" {% if request.GET.estado == 'bajo' %}selected{% endif %}>Stock bajo</option>
-                <option value="agotados" {% if request.GET.estado == 'agotados' %}selected{% endif %}>Agotados</option>
-            </select>
-            <select name="orden">
-                <option value="">Más recientes</option>
-                <option value="precio_asc" {% if request.GET.orden == 'precio_asc' %}selected{% endif %}>Precio ↑</option>
-                <option value="precio_desc" {% if request.GET.orden == 'precio_desc' %}selected{% endif %}>Precio ↓</option>
-                <option value="stock_asc" {% if request.GET.orden == 'stock_asc' %}selected{% endif %}>Stock ↑</option>
-                <option value="nombre" {% if request.GET.orden == 'nombre' %}selected{% endif %}>Nombre A-Z</option>
-            </select>
-            <button type="submit" class="btn-dorado">Filtrar</button>
-        </form>
-    </div>
-
-    <!-- ==================== TABLA DE PRODUCTOS ==================== -->
     {% if productos %}
-    <div class="admin-tabla-contenedor">
+    <div class="admin-tabla-wrapper">
         <table class="admin-tabla">
             <thead>
                 <tr>
-                    <th>Producto</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Precio</th>
                     <th>Stock</th>
@@ -128,66 +62,40 @@
             </thead>
             <tbody>
                 {% for p in productos %}
-                <tr class="admin-fila">
+                <tr>
                     <td>
-                        <div class="tabla-producto">
-                            <div class="tabla-producto-img">
-                                {% if p.imagen %}
-                                <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
-                                {% else %}
-                                <div class="sin-imagen-mini">👕</div>
-                                {% endif %}
-                            </div>
-                            <div class="tabla-producto-info">
-                                <a href="{% url 'detalle_producto' p.pk %}" class="tabla-nombre">
-                                    {{ p.nombre }}
-                                </a>
-                                <span class="tabla-fecha">Creado: {{ p.creado|date:"d/m/Y" }}</span>
-                            </div>
-                        </div>
+                        {% if p.imagen %}
+                        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="tabla-img">
+                        {% else %}
+                        <div class="tabla-img sin-imagen-mini">👕</div>
+                        {% endif %}
                     </td>
                     <td>
-                        <span class="tabla-categoria">{{ p.categoria.nombre }}</span>
+                        <a href="{% url 'detalle_producto' p.pk %}" class="tabla-nombre">
+                            {{ p.nombre }}
+                        </a>
                     </td>
-                    <td>
-                        <strong class="tabla-precio">${{ p.precio }}</strong>
-                    </td>
+                    <td><span class="tabla-categoria">{{ p.categoria.nombre }}</span></td>
+                    <td><strong class="tabla-precio">${{ p.precio }}</strong></td>
                     <td>
                         {% if p.stock > 10 %}
-                            <span class="badge-stock ok">
-                                <span class="stock-dot"></span> {{ p.stock }}
-                            </span>
+                            <span class="badge-stock ok">{{ p.stock }}</span>
                         {% elif p.stock > 0 %}
-                            <span class="badge-stock low">
-                                <span class="stock-dot"></span> {{ p.stock }}
-                            </span>
+                            <span class="badge-stock low">{{ p.stock }}</span>
                         {% else %}
-                            <span class="badge-stock out">
-                                <span class="stock-dot"></span> Agotado
-                            </span>
+                            <span class="badge-stock out">Agotado</span>
                         {% endif %}
                     </td>
                     <td>
-                        {% if p.disponible and p.stock > 0 %}
-                            <span class="estado-badge activo">● Visible</span>
-                        {% elif p.stock == 0 %}
-                            <span class="estado-badge agotado">● Sin stock</span>
+                        {% if p.disponible %}
+                            <span class="badge-disponible">✅ Visible</span>
                         {% else %}
-                            <span class="estado-badge oculto">● Oculto</span>
+                            <span class="badge-oculto">🚫 Oculto</span>
                         {% endif %}
                     </td>
-                    <td>
-                        <div class="tabla-acciones">
-                            <a href="{% url 'detalle_producto' p.pk %}" class="btn-accion ver" title="Ver">
-                                👁️
-                            </a>
-                            <a href="{% url 'editar_producto' p.pk %}" class="btn-accion editar" title="Editar">
-                                ✏️
-                            </a>
-                            <a href="{% url 'eliminar_producto' p.pk %}" class="btn-accion eliminar" title="Eliminar">
-                                🗑️
-                            </a>
-                        </div>
+                    <td class="tabla-acciones">
+                        <a href="{% url 'editar_producto' p.pk %}" class="btn-icon edit" title="Editar">✏️</a>
+                        <a href="{% url 'eliminar_producto' p.pk %}" class="btn-icon delete" title="Eliminar">🗑️</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -195,16 +103,13 @@
         </table>
     </div>
     {% else %}
-    <div class="admin-vacio">
-        <div class="admin-vacio-icon">📦</div>
+    <div class="sin-productos">
+        <span style="font-size:4rem;">📦</span>
         <h3>No hay productos todavía</h3>
         <p>Crea tu primer producto para empezar a vender.</p>
-        <a href="{% url 'crear_producto' %}" class="btn-dorado btn-lg">
-            ➕ Crear primer producto
-        </a>
+        <a href="{% url 'crear_producto' %}" class="btn-dorado">➕ Crear primer producto</a>
     </div>
     {% endif %}
-
 </section>
 
 {% endblock %}

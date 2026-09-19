@@ -252,7 +252,7 @@ main { min-height: 60vh; }
 .user-name {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.3rem;
     white-space: nowrap;
     padding: 0.5rem 0.8rem;
     background: var(--azul-medio);
@@ -260,33 +260,6 @@ main { min-height: 60vh; }
     font-size: 0.85rem;
     color: var(--blanco-hueso);
     transition: background 0.3s, color 0.3s;
-}
-
-.user-avatar-mini,
-.user-avatar-default {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.user-avatar-mini img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.user-avatar-default {
-    font-size: 1rem;
-    background: rgba(212, 175, 55, 0.15);
-    border-color: rgba(212, 175, 55, 0.3);
 }
 
 .user-menu:hover .user-name {
@@ -3183,43 +3156,6 @@ html, body.auth-body {
     flex-shrink: 0;
     position: relative;
     z-index: 1;
-    overflow: hidden;
-}
-
-.perfil-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.perfil-avatar-preview {
-    margin: 1rem 0 1.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-}
-
-.perfil-avatar-preview img {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--dorado);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.25);
-}
-
-.checkbox-eliminar-avatar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    color: var(--gris-texto);
-    font-size: 0.9rem;
-    cursor: pointer;
-}
-
-.checkbox-eliminar-avatar input {
-    accent-color: var(--dorado);
 }
 
 .perfil-info { position: relative; z-index: 1; }

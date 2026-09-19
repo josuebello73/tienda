@@ -10,7 +10,6 @@ urlpatterns = [
     path('carrito/', views.ver_carrito, name='ver_carrito'),
     path('carrito/agregar/<int:producto_id>/', views.agregar_al_carrito, name='agregar_al_carrito'),
     path('carrito/eliminar/<int:producto_id>/', views.eliminar_del_carrito, name='eliminar_del_carrito'),
-    path('carrito/actualizar/<int:producto_id>/', views.actualizar_cantidad, name='actualizar_cantidad'),
 
     # Pedidos y Checkout
     path('checkout/', views.checkout, name='checkout'),
@@ -31,17 +30,4 @@ urlpatterns = [
     path('categorias/crear/', views.crear_categoria, name='crear_categoria'),
     path('categorias/<int:pk>/editar/', views.editar_categoria, name='editar_categoria'),
     path('categorias/<int:pk>/eliminar/', views.eliminar_categoria, name='eliminar_categoria'),
-
-
-    # ==================== PASARELAS DE PAGO ====================
-    path('pago/transferencia/<int:pedido_id>/', views.pago_transferencia, name='pago_transferencia'),
-    path('pago/mercadopago/<int:pedido_id>/', views.pago_mercadopago, name='pago_mercadopago'),
-    path('pago/binance/<int:pedido_id>/', views.pago_binance, name='pago_binance'),
-    path('pago/zelle/<int:pedido_id>/', views.pago_zelle, name='pago_zelle'),
-
-    # ==================== ADMIN: PEDIDOS ====================
-    path('admin-pedidos/', views.lista_pedidos_admin, name='lista_pedidos_admin'),
-    path('admin-pedidos/<int:pedido_id>/', views.detalle_pedido_admin, name='detalle_pedido_admin'),
-    path('admin-pedidos/<int:pedido_id>/eliminar/', views.eliminar_pedido_admin, name='eliminar_pedido_admin'),
-
 ]

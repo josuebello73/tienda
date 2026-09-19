@@ -1,190 +1,22 @@
 {% extends 'tienda/_base.html' %}
-{% load static %}
-
-{% block titulo %}Mi Carrito - Mi Tienda{% endblock %}
-
 {% block contenido %}
-
-<section class="seccion-carrito">
-
-    <div class="carrito-header">
-        <span class="seccion-tag">TU COMPRA</span>
-        <h2>🛒 Mi Carrito</h2>
-        <p>Revisa tus productos antes de finalizar la compra</p>
-    </div>
-
-    {% if carrito %}
-
-    <div class="carrito-layout">
-
-        <!-- ==================== LISTA DE PRODUCTOS ==================== -->
-        <div class="carrito-productos">
-
-            {% for item in carrito %}
-            <article class="carrito-item">
-
-                <!-- Imagen -->
-                <a href="{% url 'detalle_producto' item.producto.pk %}" class="carrito-imagen">
-                    {% if item.producto.imagen %}
-                        <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}">
-                    {% else %}
-                        <div class="sin-imagen">👕</div>
-                    {% endif %}
-                </a>
-
-                <!-- Info -->
-                <div class="carrito-info">
-                    <span class="carrito-categoria">{{ item.producto.categoria.nombre }}</span>
-                    <h3 class="carrito-nombre">
-                        <a href="{% url 'detalle_producto' item.producto.pk %}">
-                            {{ item.producto.nombre }}
-                        </a>
-                    </h3>
-                    <p class="carrito-precio-unit">
-                        ${{ item.precio }} c/u
-                    </p>
-                    <span class="carrito-stock-info">
-                        {% if item.producto.stock > 0 %}
-                            ✅ {{ item.producto.stock }} disponibles
-                        {% else %}
-                            ❌ Agotado
-                        {% endif %}
-                    </span>
-                </div>
-
-                <!-- Cantidad + Total + Eliminar -->
-                <div class="carrito-acciones">
-
-                    <form method="post"
-                          action="{% url 'actualizar_cantidad' item.producto.id %}"
-                          class="cantidad-form">
-                        {% csrf_token %}
-                        <div class="cantidad-control">
-                            <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, -1)">−</button>
-                            <input type="number"
-                                   name="cantidad"
-                                   value="{{ item.cantidad }}"
-                                   min="1"
-                                   max="{{ item.producto.stock }}"
-                                   class="cantidad-input"
-                                   onchange="this.form.submit()">
-                            <button type="button" class="cantidad-btn" onclick="cambiarCantidad(this, 1)">+</button>
-                        </div>
-                    </form>
-
-                    <div class="carrito-subtotal">
-                        <span class="subtotal-label">Subtotal</span>
-                        <span class="subtotal-valor">${{ item.total }}</span>
-                    </div>
-
-                    <a href="{% url 'eliminar_del_carrito' item.producto.id %}"
-                       class="carrito-eliminar"
-                       title="Eliminar del carrito"
-                       onclick="return confirm('¿Eliminar {{ item.producto.nombre }} del carrito?');">
-                        🗑️
-                    </a>
-                </div>
-
-            </article>
-            {% endfor %}
-
-            <!-- Botón seguir comprando -->
-            <div class="carrito-seguir">
-                <a href="{% url 'lista_productos' %}" class="btn-outline">
-                    ← Seguir comprando
-                </a>
-            </div>
-
-        </div>
-
-        <!-- ==================== RESUMEN LATERAL ==================== -->
-        <aside class="carrito-resumen">
-            <div class="resumen-card">
-
-                <h3>📋 Resumen del pedido</h3>
-
-                <div class="resumen-linea">
-                    <span>Productos</span>
-                    <span>{{ carrito|length }}</span>
-                </div>
-
-                <div class="resumen-linea">
-                    <span>Subtotal</span>
-                    <span>${{ carrito.total }}</span>
-                </div>
-
-                <div class="resumen-linea">
-                    <span>Envío</span>
-                    <span class="envio-gratis">GRATIS</span>
-                </div>
-
-                <div class="resumen-separador"></div>
-
-                <div class="resumen-total">
-                    <span>Total</span>
-                    <span class="total-monto">${{ carrito.total }}</span>
-                </div>
-
-                <a href="{% url 'checkout' %}" class="btn-dorado btn-full btn-checkout">
-                    Finalizar Compra →
-                </a>
-
-                <p class="resumen-nota">
-                    🔒 Pago seguro por transferencia bancaria
-                </p>
-
-                <!-- Beneficios -->
-                <div class="resumen-beneficios">
-                    <div class="resumen-beneficio">
-                        <span>🚚</span>
-                        <span>Envío gratis +$50</span>
-                    </div>
-                    <div class="resumen-beneficio">
-                        <span>↩️</span>
-                        <span>Devolución 30 días</span>
-                    </div>
-                    <div class="resumen-beneficio">
-                        <span>💎</span>
-                        <span>Calidad garantizada</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-    </div>
-
-    {% else %}
-
-    <!-- ==================== CARRITO VACÍO ==================== -->
-    <div class="carrito-vacio">
-        <div class="carrito-vacio-icon">🛒</div>
-        <h3>Tu carrito está vacío</h3>
-        <p>Explora nuestro catálogo y encuentra algo que te encante.</p>
-        <a href="{% url 'lista_productos' %}" class="btn-dorado btn-lg">
-            Explorar productos
-        </a>
-    </div>
-
-    {% endif %}
-
-</section>
-
-<script>
-function cambiarCantidad(btn, delta) {
-    const form = btn.closest('form');
-    const input = form.querySelector('.cantidad-input');
-    const max = parseInt(input.max) || 999;
-    let valor = parseInt(input.value) + delta;
-
-    if (valor < 1) valor = 1;
-    if (valor > max) {
-        alert('Solo hay ' + max + ' unidades disponibles.');
-        valor = max;
-    }
-
-    input.value = valor;
-    form.submit();
-}
-</script>
-
+<h2>🛒 Tu Carrito</h2>
+{% if carrito %}
+<table class="tabla-carrito">
+    <tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Total</th><th></th></tr>
+    {% for item in carrito %}
+    <tr>
+        <td>{{ item.producto.nombre }}</td>
+        <td>{{ item.cantidad }}</td>
+        <td>${{ item.precio }}</td>
+        <td>${{ item.total }}</td>
+        <td><a href="{% url 'eliminar_del_carrito' item.producto.id %}">❌</a></td>
+    </tr>
+    {% endfor %}
+    <tr><td colspan="4"><strong>Total:</strong></td><td><strong>${{ carrito.total }}</strong></td></tr>
+</table>
+<a href="{% url 'checkout' %}" class="btn-dorado">Finalizar Compra</a>
+{% else %}
+<p>Tu carrito está vacío.</p>
+{% endif %}
 {% endblock %}
