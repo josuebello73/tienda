@@ -284,8 +284,8 @@ main { min-height: 60vh; }
     text-align: left;
 }
 
-/* Al pasar el mouse sobre el contenedor → mostrar */
-.user-menu:hover .user-dropdown {
+/* El script controla la apertura al hacer clic */
+.user-menu.is-open .user-dropdown {
     display: block;
 }
 
