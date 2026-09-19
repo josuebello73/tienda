@@ -5,26 +5,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block titulo %}Mi Tienda — Moda Premium{% endblock %}</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+
+    {% block css_extra %}{% endblock %}
 </head>
 <body>
 
 <!-- ==================== HEADER ==================== -->
 <header class="site-header">
 
+    <!-- Barra dorada superior (SIEMPRE primero) -->
+    <div class="header-top">
+        <p>✨ Envío gratis en compras superiores a $50 ✨</p>
+    </div>
+
     <!-- Fila principal: logo · buscador · usuario -->
     <div class="header-main">
-        <a href="{% url 'inicio' %}" class="logo">
+
+        <a href="{% url 'lista_productos' %}" class="logo">
             <span class="logo-icon">👑</span>
             <span class="logo-text">MI TIENDA</span>
         </a>
 
         <form method="get" action="{% url 'lista_productos' %}" class="header-buscador">
             <input type="text" name="q" placeholder="Buscar prendas, categorías..." value="{{ request.GET.q }}">
-            <button type="submit">🔍</button>
+            <button type="submit" aria-label="Buscar">🔍</button>
         </form>
 
         <nav class="header-nav">
@@ -38,6 +48,7 @@
                 <!-- Menú desplegable del usuario -->
                 <div class="user-menu">
                     <span class="user-name">👤 {{ user.first_name|default:user.username }} ▼</span>
+
                     <div class="user-dropdown">
                         <a href="{% url 'mi_perfil' %}">👤 Mi perfil</a>
                         <a href="{% url 'historial_pedidos' %}">📦 Mis pedidos</a>
@@ -53,11 +64,9 @@
                         {% endif %}
 
                         <div class="dropdown-divider"></div>
-                        <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">
+                        <form action="{% url 'logout' %}" method="post" class="dropdown-logout-form">
                             {% csrf_token %}
-                            <button type="submit" class="dropdown-logout">
-                            🚪 Cerrar sesión
-                            </button>
+                            <button type="submit" class="dropdown-logout">🚪 Cerrar sesión</button>
                         </form>
                     </div>
                 </div>
@@ -74,9 +83,9 @@
         <a href="{% url 'lista_productos' %}">Catálogo</a>
         <a href="{% url 'lista_productos' %}?orden=nuevo">Novedades</a>
         <a href="{% url 'lista_productos' %}?orden=precio_asc">Ofertas</a>
-        <a href="{% url 'lista_productos' %}">Hombre</a>
-        <a href="{% url 'lista_productos' %}">Mujer</a>
-        <a href="{% url 'lista_productos' %}">Accesorios</a>
+        <a href="{% url 'lista_productos' %}?categoria=1">Hombre</a>
+        <a href="{% url 'lista_productos' %}?categoria=2">Mujer</a>
+        <a href="{% url 'lista_productos' %}?categoria=3">Accesorios</a>
 
         {% if user.is_staff %}
         <a href="{% url 'lista_admin' %}" class="menu-admin">📊 Panel admin</a>
@@ -84,12 +93,7 @@
     </nav>
 </header>
 
-    <!-- Barra superior -->
-    <div class="header-top">
-        <p>✨ Envío gratis en compras superiores a $50 ✨</p>
-    </div>
-
-<!-- ==================== MENSAJES ==================== -->
+<!-- ==================== MENSAJES FLASH ==================== -->
 {% if messages %}
 <div class="messages-container">
     {% for message in messages %}
@@ -98,7 +102,7 @@
 </div>
 {% endif %}
 
-<!-- ==================== CONTENIDO ==================== -->
+<!-- ==================== CONTENIDO PRINCIPAL ==================== -->
 <main>
     {% block contenido %}{% endblock %}
 </main>
@@ -108,6 +112,7 @@
     <div class="footer-caja">
 
         <div class="footer-grid">
+
             <!-- Columna 1: Marca -->
             <div class="footer-col">
                 <h4>👑 MI TIENDA</h4>
@@ -166,6 +171,17 @@
 
     </div>
 </footer>
-<script src="{% static 'Js/Dropdown-menu.js' %}"></script>
+
+<!-- ==========================================================================
+     JAVASCRIPT GLOBAL
+     - Dropdown-menu.js: controla el menú desplegable del usuario
+     - password-toggle.js: muestra/oculta contraseñas (usado en login y perfil)
+     ========================================================================== -->
+<script src="{% static 'js/Dropdown-menu.js' %}"></script>
+<script src="{% static 'js/password-toggle.js' %}"></script>
+
+<!-- Bloque para JS específico de cada página -->
+{% block js_extra %}{% endblock %}
+
 </body>
 </html>

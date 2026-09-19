@@ -139,3 +139,27 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+# ==================================================
+# CONFIGURACIÓN DE EMAIL PARA RESETEO DE CONTRASEÑA
+# ==================================================
+
+# Django 6.1 usa MAILERS. No mezclar esta configuración con EMAIL_BACKEND.
+MAILERS = {
+    'default': {
+        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+    },
+}
+DEFAULT_FROM_EMAIL = 'noreply@mitienda.com'
+
+# Opción B: PRODUCCIÓN (Gmail) → Descomentar y rellenar
+# MAILERS = {
+#     'default': {
+#         'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',
+#         'HOST': 'smtp.gmail.com',
+#         'PORT': 587,
+#         'USE_TLS': True,
+#         'USERNAME': 'tu-correo@gmail.com',
+#         'PASSWORD': 'tu-contraseña-de-aplicación',
+#     },
+# }
+# DEFAULT_FROM_EMAIL = 'tu-correo@gmail.com'
