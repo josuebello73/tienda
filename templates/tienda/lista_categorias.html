@@ -1,0 +1,63 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Categorías - Mi Tienda{% endblock %}
+
+{% block contenido %}
+<section class="seccion-admin-panel">
+    <div class="admin-header">
+        <div>
+            <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
+            <h2>🏷️ Gestión de Categorías</h2>
+            <p>{{ categorias|length }} categoría{{ categorias|length|pluralize }} en total</p>
+        </div>
+        <div class="admin-header-actions">
+            <a href="{% url 'lista_admin' %}" class="btn-outline">📊 Productos</a>
+            <a href="{% url 'crear_categoria' %}" class="btn-dorado">➕ Nueva categoría</a>
+        </div>
+    </div>
+
+    {% if categorias %}
+    <div class="admin-tabla-wrapper">
+        <table class="admin-tabla">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Productos</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in categorias %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <strong class="tabla-nombre">{{ c.nombre }}</strong>
+                    </td>
+                    <td>{{ c.descripcion|default:"—"|truncatewords:12 }}</td>
+                    <td>
+                        <span class="badge-stock {% if c.productos.count > 0 %}ok{% else %}out{% endif %}">
+                            {{ c.productos.count }}
+                        </span>
+                    </td>
+                    <td class="tabla-acciones">
+                        <a href="{% url 'editar_categoria' c.pk %}" class="btn-icon edit" title="Editar">✏️</a>
+                        <a href="{% url 'eliminar_categoria' c.pk %}" class="btn-icon delete" title="Eliminar">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="sin-productos">
+        <span style="font-size:4rem;">🏷️</span>
+        <h3>No hay categorías todavía</h3>
+        <p>Crea tu primera categoría para organizar tus productos.</p>
+        <a href="{% url 'crear_categoria' %}" class="btn-dorado">➕ Crear primera categoría</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

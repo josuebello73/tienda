@@ -6,13 +6,16 @@
 {% block contenido %}
 
 <section class="seccion-perfil">
-    <div class="perfil-avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
-    {% if user.perfil.avatar %}
-        <img src="{{ user.perfil.avatar.url }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-    {% else %}
-        {{ user.first_name|first|default:user.username|first|upper }}
-    {% endif %}
-</div>
+    <div class="perfil-header">
+        <div class="perfil-avatar">
+            {{ user.first_name|first|default:user.username|first|upper }}
+        </div>
+        <div class="perfil-info">
+            <span class="seccion-tag">MI CUENTA</span>
+            <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+            <p>@{{ user.username }} · {{ user.email }}</p>
+        </div>
+    </div>
 
     <!-- Stats rápidas -->
     <div class="perfil-stats">
@@ -48,7 +51,7 @@
                 <p>Actualiza tu información de contacto</p>
             </div>
 
-            <form method="post" class="perfil-form" enctype="multipart/form-data">
+            <form method="post" class="perfil-form">
                 {% csrf_token %}
                 <input type="hidden" name="accion" value="datos">
 
@@ -74,11 +77,6 @@
                 <div class="form-field">
                     <label>Usuario (no editable)</label>
                     <input type="text" value="{{ user.username }}" disabled class="input-disabled">
-                </div>
-
-                <div class="form-field">
-                    <label for="id_avatar">Cambiar foto de perfil</label>
-                    <input type="file" name="avatar" id="id_avatar" accept="image/*" style="color: #a0aab8; padding: 10px 0;">
                 </div>
 
                 <button type="submit" class="btn-dorado btn-full">💾 Guardar cambios</button>
