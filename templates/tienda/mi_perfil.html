@@ -1,0 +1,150 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Mi Perfil - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion-perfil">
+    <div class="perfil-header">
+        <div class="perfil-avatar">
+            {{ user.first_name|first|default:user.username|first|upper }}
+        </div>
+        <div class="perfil-info">
+            <span class="seccion-tag">MI CUENTA</span>
+            <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+            <p>@{{ user.username }} · {{ user.email }}</p>
+        </div>
+    </div>
+
+    <!-- Stats rápidas -->
+    <div class="perfil-stats">
+        <div class="stat-card">
+            <span class="stat-icon">📦</span>
+            <div>
+                <h4>{{ total_pedidos }}</h4>
+                <p>Pedidos totales</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🗓️</span>
+            <div>
+                <h4>{{ user.date_joined|date:"M Y" }}</h4>
+                <p>Miembro desde</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon">🛒</span>
+            <div>
+                <h4><a href="{% url 'ver_carrito' %}" class="stat-link">Ir al carrito</a></h4>
+                <p>Ver mis productos</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="perfil-grid">
+
+        <!-- ==================== DATOS PERSONALES ==================== -->
+        <div class="perfil-card">
+            <div class="perfil-card-header">
+                <h3>👤 Datos personales</h3>
+                <p>Actualiza tu información de contacto</p>
+            </div>
+
+            <form method="post" class="perfil-form">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="datos">
+
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="id_first_name">Nombre</label>
+                        <input type="text" name="first_name" id="id_first_name"
+                               value="{{ user.first_name }}" placeholder="Tu nombre">
+                    </div>
+                    <div class="form-field">
+                        <label for="id_last_name">Apellido</label>
+                        <input type="text" name="last_name" id="id_last_name"
+                               value="{{ user.last_name }}" placeholder="Tu apellido">
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label for="id_email">Correo electrónico</label>
+                    <input type="email" name="email" id="id_email"
+                           value="{{ user.email }}" placeholder="tucorreo@ejemplo.com">
+                </div>
+
+                <div class="form-field">
+                    <label>Usuario (no editable)</label>
+                    <input type="text" value="{{ user.username }}" disabled class="input-disabled">
+                </div>
+
+                <button type="submit" class="btn-dorado btn-full">💾 Guardar cambios</button>
+            </form>
+        </div>
+
+        <!-- ==================== CAMBIO DE CONTRASEÑA ==================== -->
+        <div class="perfil-card">
+            <div class="perfil-card-header">
+                <h3>🔒 Cambiar contraseña</h3>
+                <p>Por seguridad, te recomendamos cambiarla periódicamente</p>
+            </div>
+
+            <form method="post" class="perfil-form">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="password">
+
+                <div class="form-field">
+                    <label for="id_old_password">Contraseña actual</label>
+                    <input type="password" name="old_password" id="id_old_password" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="id_new_password1">Nueva contraseña</label>
+                    <input type="password" name="new_password1" id="id_new_password1" required>
+                </div>
+
+                <div class="form-field">
+                    <label for="id_new_password2">Confirmar nueva contraseña</label>
+                    <input type="password" name="new_password2" id="id_new_password2" required>
+                </div>
+
+                <button type="submit" class="btn-outline btn-full">🔑 Cambiar contraseña</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== ÚLTIMOS PEDIDOS ==================== -->
+    {% if pedidos_usuario %}
+    <div class="perfil-card">
+        <div class="perfil-card-header">
+            <h3>📦 Últimos pedidos</h3>
+            <a href="{% url 'historial_pedidos' %}" class="link-ver-todos">Ver todos →</a>
+        </div>
+
+        <div class="perfil-pedidos">
+            {% for pedido in pedidos_usuario %}
+            <a href="{% url 'detalle_pedido' pedido.id %}" class="perfil-pedido-row">
+                <div>
+                    <strong>Pedido #{{ pedido.id }}</strong>
+                    <span class="perfil-pedido-fecha">{{ pedido.creado|date:"d/m/Y" }}</span>
+                </div>
+                <div class="perfil-pedido-estado">
+                    <span class="pedido-estado estado-{{ pedido.estado }}">
+                        {{ pedido.get_estado_display }}
+                    </span>
+                    <span class="perfil-pedido-total">${{ pedido.total }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ==================== CERRAR SESIÓN ==================== -->
+    <div class="perfil-logout">
+        <a href="{% url 'logout' %}" class="btn-danger-outline">🚪 Cerrar sesión</a>
+    </div>
+</section>
+
+{% endblock %}

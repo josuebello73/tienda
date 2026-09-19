@@ -1,0 +1,34 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Eliminar Categoría - Mi Tienda{% endblock %}
+
+{% block contenido %}
+<section class="seccion-form-admin">
+    <div class="confirm-delete">
+        <div class="delete-icon">🗑️</div>
+        <h2>¿Eliminar esta categoría?</h2>
+        <p class="delete-warning">Esta acción no se puede deshacer.</p>
+
+        <div class="delete-card">
+            <div class="delete-info">
+                <h3>{{ categoria.nombre }}</h3>
+                {% if categoria.descripcion %}
+                <p class="delete-stock">{{ categoria.descripcion }}</p>
+                {% endif %}
+                <p class="delete-categoria">
+                    {{ categoria.productos.count }} producto(s) asociado(s)
+                </p>
+            </div>
+        </div>
+
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            <div class="form-actions">
+                <a href="{% url 'lista_categorias' %}" class="btn-outline">← Cancelar</a>
+                <button type="submit" class="btn-danger">🗑️ Sí, eliminar</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
