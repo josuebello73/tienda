@@ -1,0 +1,204 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}{{ producto.nombre }} - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<!-- ==========================================================================
+     SECCIÓN PRINCIPAL DEL DETALLE
+     Contiene: breadcrumb + grid de 2 columnas (imagen | info)
+     ========================================================================== -->
+<section class="seccion-detalle">
+
+    <!-- ==================== BREADCRUMB (navegación) ====================
+         Muestra: Inicio › Categoría › Producto
+         Es el rastro de migas que ayuda al usuario a volver. -->
+    <nav class="breadcrumb">
+        <a href="{% url 'lista_productos' %}">Inicio</a>
+        <span>›</span>
+        <a href="{% url 'lista_productos' %}?categoria={{ producto.categoria.id }}">
+            {{ producto.categoria.nombre }}
+        </a>
+        <span>›</span>
+        <span class="breadcrumb-actual">{{ producto.nombre }}</span>
+    </nav>
+
+    <!-- ==================== GRID DE 2 COLUMNAS ====================
+         Columna izquierda: imagen del producto
+         Columna derecha: información + botones + beneficios -->
+    <div class="detalle-grid">
+
+        <!-- ---------- COLUMNA IZQUIERDA: IMAGEN ---------- -->
+        <div class="detalle-imagen-wrapper">
+            <div class="detalle-imagen-principal">
+
+                {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+                {% else %}
+                    <!-- Si no hay imagen, mostramos un icono grande -->
+                    <div class="sin-imagen-grande">👕</div>
+                {% endif %}
+
+                <!-- BADGE según stock: Agotado / Últimas / nada -->
+                {% if producto.stock == 0 %}
+                    <span class="badge badge-agotado detalle-badge">Agotado</span>
+                {% elif producto.stock < 5 %}
+                    <span class="badge badge-pocas detalle-badge">Últimas {{ producto.stock }}</span>
+                {% endif %}
+
+                <!-- BADGE de OFERTA si el precio es menor a 30 -->
+                {% if producto.precio < 30 %}
+                    <span class="badge badge-oferta detalle-badge-left">OFERTA</span>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- ---------- COLUMNA DERECHA: INFO ---------- -->
+        <div class="detalle-info">
+
+            <!-- Categoría (ej: "CAMISAS") -->
+            <span class="detalle-categoria">{{ producto.categoria.nombre }}</span>
+
+            <!-- Nombre del producto -->
+            <h1 class="detalle-nombre">{{ producto.nombre }}</h1>
+
+            <!-- Precio actual + precio tachado si está en oferta -->
+            <div class="detalle-precio-wrapper">
+                <span class="detalle-precio">${{ producto.precio }}</span>
+                {% if producto.precio < 30 %}
+                    <span class="detalle-precio-antes">${{ producto.precio|add:"15" }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Descripción corta (máx 20 palabras) -->
+            <p class="detalle-descripcion-corta">
+                {{ producto.descripcion|truncatewords:20 }}
+            </p>
+
+            <!-- Indicador de stock con colores -->
+            <div class="detalle-stock">
+                {% if producto.stock > 10 %}
+                    <span class="stock-indicador ok">✅ Disponible ({{ producto.stock }} en stock)</span>
+                {% elif producto.stock > 0 %}
+                    <span class="stock-indicador low">⚠️ Últimas {{ producto.stock }} unidades</span>
+                {% else %}
+                    <span class="stock-indicador out">❌ Agotado</span>
+                {% endif %}
+            </div>
+
+            <!-- ==================== BOTÓN DE COMPRA ====================
+                 Si el usuario está logueado → puede agregar
+                 Si NO está logueado → se le pide iniciar sesión -->
+            {% if producto.stock > 0 %}
+            <div class="detalle-acciones">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'agregar_al_carrito' producto.id %}"
+                       class="btn-dorado btn-lg btn-full">
+                        🛒 Agregar al carrito
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}?next={% url 'detalle_producto' producto.pk %}"
+                       class="btn-dorado btn-lg btn-full">
+                        🔐 Inicia sesión para comprar
+                    </a>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="detalle-acciones">
+                <button class="btn-deshabilitado btn-lg btn-full" disabled>Sin stock</button>
+            </div>
+            {% endif %}
+
+            <!-- ==================== BENEFICIOS (3 columnas) ==================== -->
+            <div class="detalle-beneficios">
+                <div class="detalle-beneficio">
+                    <span>🚚</span>
+                    <div>
+                        <strong>Envío gratis</strong>
+                        <small>En compras +$50</small>
+                    </div>
+                </div>
+                <div class="detalle-beneficio">
+                    <span>↩️</span>
+                    <div>
+                        <strong>Devolución</strong>
+                        <small>Hasta 30 días</small>
+                    </div>
+                </div>
+                <div class="detalle-beneficio">
+                    <span>🔒</span>
+                    <div>
+                        <strong>Pago seguro</strong>
+                        <small>Transferencia</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== ACCIONES DE ADMIN ====================
+                 Solo visibles si el usuario es staff -->
+            {% if user.is_staff %}
+            <div class="detalle-admin-acciones">
+                <a href="{% url 'editar_producto' producto.pk %}" class="btn-admin-detalle">
+                    ✏️ Editar
+                </a>
+                <a href="{% url 'eliminar_producto' producto.pk %}" class="btn-admin-detalle danger">
+                    🗑️ Eliminar
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         DESCRIPCIÓN COMPLETA
+         Va debajo del grid, ocupa todo el ancho
+         ========================================================================== -->
+    <div class="detalle-descripcion-completa">
+        <h2>📄 Descripción del producto</h2>
+        <div class="descripcion-contenido">
+            {{ producto.descripcion|linebreaks }}
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         PRODUCTOS RELACIONADOS
+         Misma categoría, hasta 4 productos, excluyendo el actual
+         ========================================================================== -->
+    {% if relacionados %}
+    <div class="detalle-relacionados">
+        <div class="seccion-header">
+            <span class="seccion-tag">TAMBIÉN TE PUEDE GUSTAR</span>
+            <h2>Productos relacionados</h2>
+        </div>
+
+        <div class="productos-grid">
+            {% for p in relacionados %}
+            <article class="card-producto">
+                <a href="{% url 'detalle_producto' p.pk %}" class="card-imagen">
+                    {% if p.imagen %}
+                        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+                    {% else %}
+                        <div class="sin-imagen">👕</div>
+                    {% endif %}
+                </a>
+                <div class="card-info">
+                    <span class="card-categoria">{{ p.categoria.nombre }}</span>
+                    <h3 class="card-nombre">
+                        <a href="{% url 'detalle_producto' p.pk %}">{{ p.nombre }}</a>
+                    </h3>
+                    <div class="card-precio-stock">
+                        <span class="card-precio">${{ p.precio }}</span>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}

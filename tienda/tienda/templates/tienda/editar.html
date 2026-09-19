@@ -1,0 +1,138 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Editar: {{ producto.nombre }} - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion-form-admin">
+    <div class="form-admin-header">
+        <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
+        <h2>✏️ Editar Producto</h2>
+        <p>Modifica los datos de "{{ producto.nombre }}"</p>
+    </div>
+
+    <div class="form-admin-wrapper">
+        <form method="post" enctype="multipart/form-data" class="form-admin">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="form-error">
+                {% for error in form.non_field_errors %}⚠️ {{ error }}{% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Nombre -->
+            <div class="form-field">
+                <label for="{{ form.nombre.id_for_label }}">📝 Nombre del producto *</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}<small class="field-error">{{ form.nombre.errors.0 }}</small>{% endif %}
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-field">
+                <label for="{{ form.descripcion.id_for_label }}">📄 Descripción *</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}<small class="field-error">{{ form.descripcion.errors.0 }}</small>{% endif %}
+            </div>
+
+            <!-- Precio y Stock -->
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="{{ form.precio.id_for_label }}">💰 Precio (USD) *</label>
+                    {{ form.precio }}
+                    {% if form.precio.errors %}<small class="field-error">{{ form.precio.errors.0 }}</small>{% endif %}
+                </div>
+                <div class="form-field">
+                    <label for="{{ form.stock.id_for_label }}">📦 Stock *</label>
+                    {{ form.stock }}
+                    {% if form.stock.errors %}<small class="field-error">{{ form.stock.errors.0 }}</small>{% endif %}
+                </div>
+            </div>
+
+            <!-- Categoría -->
+            <div class="form-field">
+                <label for="{{ form.categoria.id_for_label }}">🏷️ Categoría *</label>
+                {{ form.categoria }}
+                {% if form.categoria.errors %}<small class="field-error">{{ form.categoria.errors.0 }}</small>{% endif %}
+            </div>
+
+            <!-- Imagen -->
+            <div class="form-field">
+                <label for="{{ form.imagen.id_for_label }}">🖼️ Imagen del producto</label>
+
+                {% if producto.imagen %}
+                <div class="imagen-actual">
+                    <p class="imagen-label">Imagen actual:</p>
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="imagen-preview-actual">
+                </div>
+                {% endif %}
+
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" name="imagen" id="id_imagen" accept="image/*">
+                    <label for="id_imagen" class="upload-label">
+                        <div class="upload-preview" id="uploadPreview">
+                            <span class="upload-icon">📷</span>
+                            <span class="upload-text">
+                                {% if producto.imagen %}
+                                    Cambiar imagen (clic o arrastra)
+                                {% else %}
+                                    Haz clic o arrastra una imagen aquí
+                                {% endif %}
+                            </span>
+                            <span class="upload-hint">JPG, PNG · Máx 5MB</span>
+                        </div>
+                    </label>
+                </div>
+                {% if form.imagen.errors %}<small class="field-error">{{ form.imagen.errors.0 }}</small>{% endif %}
+            </div>
+
+            <!-- Disponible -->
+            <div class="form-field form-check-field">
+                <label class="check-label">
+                    {{ form.disponible }}
+                    <span>✅ Disponible para la venta</span>
+                </label>
+            </div>
+
+            <!-- Botones -->
+            <div class="form-actions">
+                <a href="{% url 'detalle_producto' producto.pk %}" class="btn-outline">← Cancelar</a>
+                <button type="submit" class="btn-dorado">💾 Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('id_imagen');
+    const preview = document.getElementById('uploadPreview');
+    const zone = document.getElementById('uploadZone');
+    if (!input || !preview) return;
+
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            preview.innerHTML = `<img src="${ev.target.result}" alt="Preview" class="preview-img">`;
+            zone.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragging'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragging');
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            input.dispatchEvent(new Event('change'));
+        }
+    });
+});
+</script>
+
+{% endblock %}

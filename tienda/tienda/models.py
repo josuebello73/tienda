@@ -4,12 +4,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-class Perfil(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='avatares/', null=True, blank=True)
 
-    def __str__(self):
-        return f"Perfil de {self.usuario.username}"
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -49,12 +44,29 @@ class Pedido(models.Model):
         ('enviado', 'Enviado'),
         ('entregado', 'Entregado'),
         ('cancelado', 'Cancelado'),
+        ('reembolsado', 'Reembolsado'),
     ]
+
+    METODOS_PAGO = [
+        ('transferencia', 'Transferencia bancaria'),
+        ('mercadopago', 'MercadoPago'),
+        ('binance', 'Binance Pay / USDT'),
+        ('zelle', 'Zelle'),
+    ]
+
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pedidos')
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    # ⬇️ CAMPO NUEVO
+    metodo_pago = models.CharField(
+        max_length=20,
+        choices=METODOS_PAGO,
+        default='transferencia'
+    )
+
     referencia_transferencia = models.CharField(max_length=100, blank=True)
     comprobante = models.ImageField(upload_to='comprobantes/', blank=True, null=True)
 

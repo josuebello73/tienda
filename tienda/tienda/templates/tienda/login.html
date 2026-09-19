@@ -1,0 +1,142 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Iniciar Sesión - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<div class="auth-card">
+
+    <!-- ==================== ENCABEZADO ==================== -->
+    <div class="auth-header">
+        <span class="auth-icon">👑</span>
+        <h2>Bienvenido de nuevo</h2>
+        <p>Inicia sesión para continuar</p>
+    </div>
+
+    <!-- ==================== AVISO SI VIENE DE "next" ====================
+         Cuando el usuario intenta acceder a una vista protegida, Django
+         lo manda al login con ?next=URL. Aquí lo avisamos. -->
+    {% if next %}
+    <div class="auth-notice">
+        🔒 Debes iniciar sesión para continuar
+    </div>
+    {% endif %}
+
+    <!-- ==================== FORMULARIO ==================== -->
+    <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+
+        <!-- Errores generales (no de un campo específico) -->
+        {% if form.non_field_errors %}
+        <div class="auth-error">
+            {% for error in form.non_field_errors %}
+                ⚠️ {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ==================== USUARIO ==================== -->
+        <div class="auth-field">
+            <label for="{{ form.username.id_for_label }}">👤 Usuario</label>
+            <input type="text"
+                   name="username"
+                   id="{{ form.username.id_for_label }}"
+                   placeholder="Tu nombre de usuario"
+                   autocomplete="username"
+                   required
+                   autofocus>
+            {% if form.username.errors %}
+            <small class="field-error">{{ form.username.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <!-- ==================== CONTRASEÑA CON TOGGLE SVG ====================
+             - .password-wrapper: contenedor posicionado para el botón
+             - input: el campo de contraseña
+             - button.password-toggle: el botón flotante con los 2 SVG -->
+        <div class="auth-field">
+            <label for="{{ form.password.id_for_label }}">🔒 Contraseña</label>
+
+            <div class="password-wrapper">
+                <input type="password"
+                       name="password"
+                       id="{{ form.password.id_for_label }}"
+                       placeholder="Tu contraseña"
+                       autocomplete="current-password"
+                       required>
+
+                <button type="button"
+                        class="password-toggle"
+                        onclick="togglePassword('{{ form.password.id_for_label }}', this)"
+                        aria-label="Mostrar u ocultar contraseña"
+                        title="Mostrar contraseña">
+                    <!-- OJO ABIERTO: visible por defecto -->
+                    <svg class="eye-open" width="20" height="20" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+
+                    <!-- OJO CERRADO: oculto por defecto, aparece al hacer clic -->
+                    <svg class="eye-closed" width="20" height="20" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="display:none;">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+            </div>
+
+            {% if form.password.errors %}
+            <small class="field-error">{{ form.password.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <!-- Campo oculto necesario para redirigir tras el login -->
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <button type="submit" class="btn-auth">Iniciar Sesión</button>
+    </form>
+
+    <!-- ==================== ENLACE OLVIDÉ CONTRASEÑA ==================== -->
+    <p class="auth-forgot">
+        <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+    </p>
+
+    <div class="auth-divider"><span>o</span></div>
+
+    <p class="auth-footer">
+        ¿No tienes cuenta?
+        <a href="{% url 'registro' %}">Regístrate aquí</a>
+    </p>
+</div>
+
+<!-- ==========================================================================
+     SCRIPT PARA TOGGLE DE CONTRASEÑA
+     Alterna el tipo del input entre password/text y muestra el SVG correcto
+     ========================================================================== -->
+<script>
+function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeOpen.style.display = 'none';
+        eyeClosed.style.display = 'block';
+        btn.title = 'Ocultar contraseña';
+    } else {
+        input.type = 'password';
+        eyeOpen.style.display = 'block';
+        eyeClosed.style.display = 'none';
+        btn.title = 'Mostrar contraseña';
+    }
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Inicio | Mi Tienda{% endblock %}
+
+{% block contenido %}
+<!-- ==================== HERO PRINCIPAL ==================== -->
+<section class="hero">
+    <div class="hero-content">
+        <span class="hero-tag">NUEVA COLECCIÓN 2025</span>
+        <h1 class="hero-title">Elegancia que<br>define tu estilo</h1>
+        <p class="hero-subtitle">Descubre prendas exclusivas diseñadas para quienes valoran la calidad y el detalle.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'lista_productos' %}" class="btn-dorado btn-lg">Explorar colección</a>
+        </div>
+    </div>
+    <div class="hero-decoration"></div>
+</section>
+
+<!-- ==================== BENEFICIOS ==================== -->
+<section class="beneficios">
+    <div class="beneficio">
+        <span class="beneficio-icon">🚚</span>
+        <div>
+            <h4>Envío gratis</h4>
+            <p>En compras +$50</p>
+        </div>
+    </div>
+    <div class="beneficio">
+        <span class="beneficio-icon">↩️</span>
+        <div>
+            <h4>Devolución fácil</h4>
+            <p>Hasta 30 días</p>
+        </div>
+    </div>
+    <div class="beneficio">
+        <span class="beneficio-icon">🔒</span>
+        <div>
+            <h4>Pago seguro</h4>
+            <p>Transferencia verificada</p>
+        </div>
+    </div>
+    <div class="beneficio">
+        <span class="beneficio-icon">💎</span>
+        <div>
+            <h4>Calidad premium</h4>
+            <p>Materiales selectos</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CATEGORÍAS DESTACADAS ==================== -->
+{% if categorias %}
+<section id="categorias" class="seccion-categorias">
+    <div class="seccion-header">
+        <span class="seccion-tag">EXPLORA</span>
+        <h2>Compra por categoría</h2>
+    </div>
+
+    <div class="categorias-grid">
+        {% for c in categorias|slice:":6" %}
+        <a href="{% url 'lista_productos' %}?categoria={{ c.id }}" class="categoria-card">
+            <div class="categoria-overlay"></div>
+            <div class="categoria-contenido">
+                <h3>{{ c.nombre }}</h3>
+                <span>Ver productos →</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+
+
+<!-- ==================== CTA FINAL ==================== -->
+{% if not user.is_authenticated %}
+    <section class="cta-final">
+        <h2>¿Listo para renovar tu guardarropa?</h2>
+        <p>Regístrate y obtén acceso a ofertas exclusivas</p>
+            <a href="{% url 'registro' %}" class="btn-dorado btn-lg">Crear cuenta gratis</a>
+        {% endif %}
+</section>
+{% endblock %}

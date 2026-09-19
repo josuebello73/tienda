@@ -1,0 +1,180 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Categorías - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<!-- ==========================================================================
+     SECCIÓN PRINCIPAL DEL PANEL DE CATEGORÍAS
+     Usa las mismas clases del panel admin para mantener consistencia visual
+     ========================================================================== -->
+<section class="admin-panel">
+
+    <!-- ==================== ENCABEZADO ====================
+         Título a la izquierda, botones de acción a la derecha -->
+    <div class="admin-panel-header">
+
+        <div class="admin-panel-titulo">
+            <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
+            <h1>🏷️ Gestión de Categorías</h1>
+            <p>
+                {{ categorias|length }} categoría{{ categorias|length|pluralize }} en el catálogo
+            </p>
+        </div>
+
+        <div class="admin-panel-acciones">
+            <a href="{% url 'lista_admin' %}" class="btn-outline">
+                📊 Productos
+            </a>
+            <a href="{% url 'crear_categoria' %}" class="btn-dorado">
+                ➕ Nueva categoría
+            </a>
+        </div>
+    </div>
+
+    <!-- ==================== TARJETAS DE ESTADÍSTICAS ====================
+         Cada tarjeta muestra un dato clave de las categorías -->
+    <div class="admin-stats-grid">
+
+        <!-- Total de categorías -->
+        <div class="admin-stat-card total">
+            <div class="stat-card-icon">🏷️</div>
+            <div class="stat-card-content">
+                <h3>{{ categorias|length }}</h3>
+                <p>Categorías totales</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+
+        <!-- Categorías con productos -->
+        <div class="admin-stat-card disponible">
+            <div class="stat-card-icon">✅</div>
+            <div class="stat-card-content">
+                <h3>{{ categorias_con_productos|default:0 }}</h3>
+                <p>Con productos</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+
+        <!-- Categorías vacías (sin productos) -->
+        <div class="admin-stat-card bajo">
+            <div class="stat-card-icon">⚠️</div>
+            <div class="stat-card-content">
+                <h3>{{ categorias_vacias|default:0 }}</h3>
+                <p>Sin productos</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+
+        <!-- Total de productos en el catálogo -->
+        <div class="admin-stat-card dinero">
+            <div class="stat-card-icon">📦</div>
+            <div class="stat-card-content">
+                <h3>{{ total_productos|default:0 }}</h3>
+                <p>Productos totales</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+    </div>
+
+    <!-- ==================== TABLA DE CATEGORÍAS ==================== -->
+    {% if categorias %}
+
+    <div class="admin-tabla-contenedor">
+        <table class="admin-tabla">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">#</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th style="text-align: center;">Productos</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in categorias %}
+                <tr class="admin-fila">
+
+                    <!-- Número de fila -->
+                    <td>
+                        <span class="tabla-numero">{{ forloop.counter }}</span>
+                    </td>
+
+                    <!-- Nombre con icono de categoría -->
+                    <td>
+                        <div class="tabla-categoria-cell">
+                            <div class="tabla-categoria-icono">🏷️</div>
+                            <div class="tabla-producto-info">
+                                <strong class="tabla-nombre">{{ c.nombre }}</strong>
+                                <span class="tabla-fecha">
+                                    Slug: {{ c.nombre|slugify }}
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Descripción -->
+                    <td>
+                        {% if c.descripcion %}
+                            <span class="tabla-descripcion">
+                                {{ c.descripcion|truncatewords:12 }}
+                            </span>
+                        {% else %}
+                            <span class="tabla-sin-dato">— sin descripción —</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Cantidad de productos -->
+                    <td style="text-align: center;">
+                        {% with total=c.productos.count %}
+                        {% if total > 0 %}
+                            <span class="badge-stock ok">
+                                <span class="stock-dot"></span> {{ total }}
+                            </span>
+                        {% else %}
+                            <span class="badge-stock out">
+                                <span class="stock-dot"></span> 0
+                            </span>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+
+                    <!-- Botones de acción -->
+                    <td>
+                        <div class="tabla-acciones" style="justify-content: flex-end;">
+                            <a href="{% url 'editar_categoria' c.pk %}"
+                               class="btn-accion editar"
+                               title="Editar categoría">
+                                ✏️
+                            </a>
+                            <a href="{% url 'eliminar_categoria' c.pk %}"
+                               class="btn-accion eliminar"
+                               title="Eliminar categoría">
+                                🗑️
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+
+    <!-- ==================== ESTADO VACÍO ==================== -->
+    <div class="admin-vacio">
+        <div class="admin-vacio-icon">🏷️</div>
+        <h3>No hay categorías todavía</h3>
+        <p>Crea tu primera categoría para organizar tus productos.</p>
+        <a href="{% url 'crear_categoria' %}" class="btn-dorado btn-lg">
+            ➕ Crear primera categoría
+        </a>
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Mis Pedidos - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<!-- ==========================================================================
+     SECCIÓN PRINCIPAL DEL HISTORIAL
+     Muestra los pedidos del usuario o un estado vacío si no tiene
+     ========================================================================== -->
+<section class="seccion-historial">
+
+    <!-- ==================== ENCABEZADO ====================
+         Título y saludo personalizado con el nombre del usuario -->
+    <div class="historial-header">
+        <span class="seccion-tag">MI CUENTA</span>
+        <h1>📦 Mis Pedidos</h1>
+        <p>
+            Hola <strong>{{ user.first_name|default:user.username }}</strong>,
+            aquí están todas tus compras
+        </p>
+    </div>
+
+    {% if pedidos %}
+
+    <!-- ==================== LISTA DE PEDIDOS ====================
+         Si el usuario tiene pedidos, mostramos cada uno en una tarjeta -->
+    <div class="pedidos-lista">
+        {% for pedido in pedidos %}
+        <article class="pedido-card">
+
+            <!-- Cabecera del pedido: número, fecha y estado -->
+            <div class="pedido-header">
+                <div class="pedido-header-info">
+                    <h3>Pedido #{{ pedido.id }}</h3>
+                    <span class="pedido-fecha">
+                        🗓️ {{ pedido.creado|date:"d/m/Y H:i" }}
+                    </span>
+                </div>
+                <!-- El estado tiene un color según el tipo:
+                     pendiente=amarillo, pagado=verde, enviado=azul, entregado=dorado -->
+                <span class="pedido-estado estado-{{ pedido.estado }}">
+                    {{ pedido.get_estado_display }}
+                </span>
+            </div>
+
+            <!-- Lista de items del pedido (productos comprados) -->
+            <div class="pedido-items">
+                {% for item in pedido.items.all %}
+                <div class="pedido-item">
+                    <span class="pedido-item-nombre">
+                        <strong>{{ item.cantidad }}×</strong> {{ item.producto.nombre }}
+                    </span>
+                    <span class="pedido-item-precio">
+                        ${{ item.precio }} c/u · <strong>${{ item.subtotal }}</strong>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Footer con total y botón de ver detalle -->
+            <div class="pedido-footer">
+                <div class="pedido-total-wrapper">
+                    <span class="pedido-total-label">Total</span>
+                    <span class="pedido-total">${{ pedido.total }}</span>
+                </div>
+                <div class="pedido-acciones">
+                    {% if pedido.referencia_transferencia %}
+                    <span class="pedido-ref">
+                        🏦 Ref: {{ pedido.referencia_transferencia }}
+                    </span>
+                    {% endif %}
+                    <a href="{% url 'detalle_pedido' pedido.id %}" class="btn-outline">
+                        Ver detalle →
+                    </a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% else %}
+
+    <!-- ==================== ESTADO VACÍO ====================
+         Si el usuario no tiene pedidos, mostramos un mensaje amigable -->
+    <div class="historial-vacio">
+        <div class="historial-vacio-icon">📦</div>
+        <h3>Aún no tienes pedidos</h3>
+        <p>Cuando realices tu primera compra, aparecerá aquí.</p>
+        <a href="{% url 'lista_productos' %}" class="btn-dorado btn-lg">
+            Explorar productos
+        </a>
+    </div>
+
+    {% endif %}
+
+</section>
+
+{% endblock %}

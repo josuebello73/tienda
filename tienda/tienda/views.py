@@ -7,11 +7,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count, Q
 
-from .models import Producto, Categoria, Pedido, PedidoItem, Perfil
+from .models import Producto, Categoria, Pedido, PedidoItem
 from .cart import Carrito
 from .forms import RegistroForm, ProductoForm, CategoriaForm
+import uuid
+from django.utils import timezone
 
 
 # ==================================================
@@ -127,6 +129,37 @@ def eliminar_del_carrito(request, producto_id):
     return redirect('ver_carrito')
 
 
+@login_required
+def actualizar_cantidad(request, producto_id):
+    """Actualiza la cantidad de un producto en el carrito."""
+    if request.method != 'POST':
+        return redirect('ver_carrito')
+
+    try:
+        cantidad = int(request.POST.get('cantidad', 1))
+    except (ValueError, TypeError):
+        messages.error(request, "Cantidad inválida.")
+        return redirect('ver_carrito')
+
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    if cantidad < 1:
+        messages.warning(request, "La cantidad mínima es 1.")
+        return redirect('ver_carrito')
+
+    if cantidad > producto.stock:
+        messages.error(
+            request,
+            f"Solo hay {producto.stock} unidades de '{producto.nombre}' disponibles."
+        )
+        return redirect('ver_carrito')
+
+    carrito = Carrito(request)
+    carrito.carrito[str(producto_id)]['cantidad'] = cantidad
+    carrito.guardar()
+
+    messages.success(request, f"Cantidad de '{producto.nombre}' actualizada.")
+    return redirect('ver_carrito')
 # ==================================================
 # CHECKOUT Y PEDIDOS
 # ==================================================
@@ -198,13 +231,19 @@ def confirmacion_pedido(request, pedido_id):
 
 @login_required
 def historial_pedidos(request):
+    # Filtra los pedidos del usuario actual, ordenados del más reciente al más antiguo
     pedidos = Pedido.objects.filter(usuario=request.user).order_by('-creado')
+
+    # Envía la lista al template
     return render(request, 'tienda/historial_pedidos.html', {'pedidos': pedidos})
 
 
 @login_required
 def detalle_pedido(request, pedido_id):
+    # get_object_or_404 busca el pedido por ID, PERO SOLO si pertenece al usuario
+    # Si no es suyo, devuelve 404 (seguridad)
     pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+
     return render(request, 'tienda/detalle_pedido.html', {'pedido': pedido})
 
 
@@ -247,42 +286,6 @@ def mi_perfil(request):
         'total_pedidos': total_pedidos,
     })
 
-@login_required
-def mi_perfil(request):
-    # Obtener el perfil del usuario (o crearlo si es la primera vez)
-    perfil, created = Perfil.objects.get_or_create(usuario=request.user)
-
-    if request.method == 'POST':
-        accion = request.POST.get('accion')
-        
-        if accion == 'datos':
-            # Guardar datos de texto
-            request.user.first_name = request.POST.get('first_name')
-            request.user.last_name = request.POST.get('last_name')
-            request.user.email = request.POST.get('email')
-            request.user.save()
-
-            # ⚠️ GUARDAR LA IMAGEN SI SE SUBIÓ UNA
-            if 'avatar' in request.FILES:
-                perfil.avatar = request.FILES['avatar']
-                perfil.save()
-            
-            # (Opcional: Agregar un mensaje de éxito aquí)
-            
-    contexto = {
-        'perfil': perfil,
-    }
-    return render(request, 'tienda/mi_perfil.html', contexto)
-
-@login_required(login_url='login')
-def mi_perfil(request):
-    # 'request.user' contiene toda la información del usuario logueado
-    contexto = {
-        'usuario': request.user,
-        'pedidos': Pedido.objects.filter(usuario=request.user).order_by('-creado')[:5],
-        'total_pedidos': Pedido.objects.filter(usuario=request.user).count(),
-    }
-    return render(request, 'tienda/mi_perfil.html', contexto)
 
 # ==================================================
 # ADMIN: PRODUCTOS (CRUD)
@@ -359,10 +362,22 @@ def eliminar_producto(request, pk):
 # ADMIN: CATEGORÍAS (CRUD)
 # ==================================================
 @staff_member_required
+@staff_member_required
 def lista_categorias(request):
+    """Panel de administración de categorías con estadísticas."""
     categorias = Categoria.objects.all().order_by('nombre')
-    return render(request, 'tienda/lista_categorias.html', {'categorias': categorias})
 
+    # Estadísticas para las tarjetas superiores
+    categorias_con_productos = categorias.filter(productos__isnull=False).distinct().count()
+    categorias_vacias = categorias.filter(productos__isnull=True).count()
+    total_productos = Producto.objects.count()
+
+    return render(request, 'tienda/lista_categorias.html', {
+        'categorias': categorias,
+        'categorias_con_productos': categorias_con_productos,
+        'categorias_vacias': categorias_vacias,
+        'total_productos': total_productos,
+    })
 
 @staff_member_required
 def crear_categoria(request):
@@ -421,3 +436,219 @@ def eliminar_categoria(request, pk):
         return redirect('lista_categorias')
 
     return render(request, 'tienda/eliminar_categoria.html', {'categoria': categoria})
+
+# ==================================================
+# LISTA ADMIN
+# ==================================================
+
+@staff_member_required
+def lista_admin(request):
+    """Panel de administración con todos los productos y estadísticas."""
+    productos = Producto.objects.all().order_by('-creado')
+
+    # Estadísticas
+    total_productos = productos.count()
+    productos_disponibles = productos.filter(disponible=True, stock__gt=0).count()
+    productos_sin_stock = productos.filter(stock=0).count()
+    productos_stock_bajo = productos.filter(stock__gt=0, stock__lte=5).count()
+
+    valor_inventario = productos.aggregate(
+        total=Sum(F('precio') * F('stock'))
+    )['total'] or 0
+
+    # Ventas (si tienes pedidos)
+    from datetime import date, timedelta
+    hoy = date.today()
+    ventas_hoy = Pedido.objects.filter(
+        creado__date=hoy,
+        estado__in=['pagado', 'enviado', 'entregado']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    # Productos agotados
+    productos_agotados = productos.filter(stock=0)
+
+    return render(request, 'tienda/lista_admin.html', {
+        'productos': productos,
+        'total_productos': total_productos,
+        'productos_disponibles': productos_disponibles,
+        'productos_sin_stock': productos_sin_stock,
+        'productos_stock_bajo': productos_stock_bajo,
+        'productos_agotados': productos_agotados,
+        'valor_inventario': valor_inventario,
+        'ventas_hoy': ventas_hoy,
+    })
+
+def detalle_producto(request, pk):
+    # Busca el producto por su ID, si no existe da error 404
+    producto = get_object_or_404(Producto, pk=pk)
+
+    # Busca hasta 4 productos de la MISMA categoría (excluyendo el actual)
+    relacionados = Producto.objects.filter(
+        categoria=producto.categoria,
+        disponible=True
+    ).exclude(pk=producto.pk)[:4]
+
+    # Envía el producto y los relacionados al template
+    return render(request, 'tienda/detalle.html', {
+        'producto': producto,
+        'relacionados': relacionados,
+    })
+
+@login_required
+def checkout(request):
+    carrito = Carrito(request)
+
+    if len(carrito) == 0:
+        messages.warning(request, "Tu carrito está vacío.")
+        return redirect('lista_productos')
+
+    if request.method == 'POST':
+        # Obtener método de pago elegido
+        metodo = request.POST.get('metodo_pago', 'transferencia')
+
+        # Validar stock
+        for item in carrito:
+            if item['producto'].stock < item['cantidad']:
+                messages.error(request, f"Stock insuficiente para '{item['producto'].nombre}'.")
+                return redirect('ver_carrito')
+
+        # Crear pedido
+        pedido = Pedido.objects.create(
+            usuario=request.user,
+            total=carrito.total(),
+            metodo_pago=metodo,
+        )
+
+        # Crear items y descontar stock
+        for item in carrito:
+            producto = item['producto']
+            PedidoItem.objects.create(
+                pedido=pedido,
+                producto=producto,
+                precio=item['precio'],
+                cantidad=item['cantidad']
+            )
+            producto.stock -= item['cantidad']
+            if producto.stock <= 0:
+                producto.disponible = False
+            producto.save()
+
+        del request.session['carrito']
+
+        # Redirigir según método elegido
+        if metodo == 'transferencia':
+            return redirect('pago_transferencia', pedido_id=pedido.id)
+        elif metodo == 'mercadopago':
+            return redirect('pago_mercadopago', pedido_id=pedido.id)
+        elif metodo == 'binance':
+            return redirect('pago_binance', pedido_id=pedido.id)
+        elif metodo == 'zelle':
+            return redirect('pago_zelle', pedido_id=pedido.id)
+
+    return render(request, 'tienda/checkout.html', {'carrito': carrito})
+
+@login_required
+def pago_mercadopago(request, pedido_id):
+    """Placeholder. Aquí iría la integración real con MercadoPago."""
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    messages.info(request, "🚧 MercadoPago estará disponible pronto. Por ahora, usa transferencia.")
+    return redirect('pago_transferencia', pedido_id=pedido.id)
+
+
+@login_required
+def pago_binance(request, pedido_id):
+    """Placeholder. Aquí iría la integración real con Binance Pay."""
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    messages.info(request, "🚧 Binance Pay estará disponible pronto. Por ahora, usa transferencia.")
+    return redirect('pago_transferencia', pedido_id=pedido.id)
+
+
+@login_required
+def pago_zelle(request, pedido_id):
+    """Placeholder. Aquí iría la info para pago por Zelle."""
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    messages.info(request, "🚧 Zelle estará disponible pronto. Por ahora, usa transferencia.")
+    return redirect('pago_transferencia', pedido_id=pedido.id)
+
+# ==================================================
+# ADMIN: GESTIÓN DE PEDIDOS
+# ==================================================
+
+@staff_member_required
+def lista_pedidos_admin(request):
+    """Panel de admin con TODOS los pedidos de todos los usuarios."""
+    pedidos = Pedido.objects.all().select_related('usuario').order_by('-creado')
+
+    # --- Filtros ---
+    estado = request.GET.get('estado')
+    if estado:
+        pedidos = pedidos.filter(estado=estado)
+
+    q = request.GET.get('q')
+    if q:
+        pedidos = pedidos.filter(
+            Q(id__icontains=q) |
+            Q(usuario__username__icontains=q) |
+            Q(usuario__email__icontains=q) |
+            Q(referencia_transferencia__icontains=q)
+        )
+
+    # --- Estadísticas (sobre TODOS los pedidos, sin filtro) ---
+    todos = Pedido.objects.all()
+    stats = {
+        'total': todos.count(),
+        'pendientes': todos.filter(estado='pendiente').count(),
+        'pagados': todos.filter(estado='pagado').count(),
+        'enviados': todos.filter(estado='enviado').count(),
+        'entregados': todos.filter(estado='entregado').count(),
+        'ingresos': todos.filter(
+            estado__in=['pagado', 'enviado', 'entregado']
+        ).aggregate(total=Sum('total'))['total'] or 0,
+    }
+
+    return render(request, 'tienda/lista_pedidos_admin.html', {
+        'pedidos': pedidos,
+        'stats': stats,
+    })
+
+
+@staff_member_required
+def detalle_pedido_admin(request, pedido_id):
+    """Ver y actualizar un pedido específico desde el admin."""
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+
+        if nuevo_estado and nuevo_estado in dict(Pedido.ESTADOS):
+            pedido.estado = nuevo_estado
+
+            # Marcar fecha de pago si pasa a 'pagado'
+            if nuevo_estado == 'pagado' and not pedido.pagado_en:
+                pedido.pagado_en = timezone.now()
+
+            pedido.save()
+            messages.success(request, f"Pedido #{pedido.id} actualizado a '{pedido.get_estado_display()}'.")
+            return redirect('detalle_pedido_admin', pedido_id=pedido.id)
+
+        messages.error(request, "Estado inválido.")
+
+    return render(request, 'tienda/detalle_pedido_admin.html', {'pedido': pedido})
+
+
+@staff_member_required
+def eliminar_pedido_admin(request, pedido_id):
+    """Eliminar un pedido (solo si está cancelado)."""
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if pedido.estado not in ['cancelado']:
+        messages.error(request, "Solo puedes eliminar pedidos cancelados.")
+        return redirect('detalle_pedido_admin', pedido_id=pedido.id)
+
+    if request.method == 'POST':
+        pid = pedido.id
+        pedido.delete()
+        messages.success(request, f"Pedido #{pid} eliminado.")
+        return redirect('lista_pedidos_admin')
+
+    return render(request, 'tienda/eliminar_pedido_admin.html', {'pedido': pedido})
