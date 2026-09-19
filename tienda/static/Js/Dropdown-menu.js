@@ -1,32 +1,45 @@
-/**
- * Controla el dropdown del usuario en el header.
- * - Al pasar el mouse sobre .user-menu → se muestra el dropdown
- * - Al hacer clic sobre .user-menu → también lo abre/cierra
- * - Al hacer clic fuera → se cierra
- */
+/** Controla el dropdown del usuario al hacer clic. */
 document.addEventListener('DOMContentLoaded', function () {
     const userMenu = document.querySelector('.user-menu');
+    const userName = document.querySelector('.user-name');
     const userDropdown = document.querySelector('.user-dropdown');
 
-    if (!userMenu || !userDropdown) return;
+    if (!userMenu || !userName || !userDropdown) return;
 
-    // Forzar que el dropdown esté oculto al cargar la página
-    userDropdown.style.display = 'none';
+    userName.setAttribute('role', 'button');
+    userName.setAttribute('tabindex', '0');
+    userName.setAttribute('aria-expanded', 'false');
 
-    // Al hacer clic sobre el nombre → toggle
-    userMenu.addEventListener('click', function (e) {
+    function closeMenu() {
+        userMenu.classList.remove('is-open');
+        userName.setAttribute('aria-expanded', 'false');
+    }
+
+    function toggleMenu(e) {
         e.stopPropagation();
-        const visible = userDropdown.style.display === 'block';
-        userDropdown.style.display = visible ? 'none' : 'block';
+        const isOpen = userMenu.classList.toggle('is-open');
+        userName.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    userName.addEventListener('click', toggleMenu);
+    userName.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleMenu(e);
+        }
     });
 
-    // Al hacer clic fuera → cerrar
     document.addEventListener('click', function () {
-        userDropdown.style.display = 'none';
+        closeMenu();
     });
 
-    // Al hacer clic dentro del dropdown → no cerrar
     userDropdown.addEventListener('click', function (e) {
         e.stopPropagation();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeMenu();
+        }
     });
 });
