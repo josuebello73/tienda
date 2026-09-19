@@ -3797,3 +3797,83 @@ html, body.auth-body {
         min-width: 150px;
     }
 }
+
+/* ==========================================================================
+   26. TOGGLE DE CONTRASEÑA CON SVG (LOGIN + REGISTRO)
+   ========================================================================== */
+
+/* Contenedor relativo que sirve de ancla para el botón */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Reserva espacio a la derecha del input para que el texto no se solape */
+.password-wrapper input {
+    width: 100%;
+    padding-right: 3rem !important;
+}
+
+/* Botón circular del ojo */
+.password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #d4af37;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    user-select: none;
+    width: 32px;
+    height: 32px;
+}
+
+/* El SVG hereda el color dorado del botón (por stroke="currentColor") */
+.password-toggle svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+}
+
+.password-toggle:hover {
+    background: rgba(212, 175, 55, 0.15);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.password-toggle:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.5);
+}
+
+/* ==========================================================================
+   ENLACE "OLVIDÉ MI CONTRASEÑA"
+   ========================================================================== */
+.auth-forgot {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.auth-forgot a {
+    color: #b0b0b0;
+    text-decoration: none;
+    transition: color 0.3s;
+    font-size: 0.88rem;
+}
+
+.auth-forgot a:hover {
+    color: #d4af37;
+    text-decoration: underline;
+}
