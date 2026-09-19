@@ -31,4 +31,11 @@ urlpatterns = [
     path('categorias/crear/', views.crear_categoria, name='crear_categoria'),
     path('categorias/<int:pk>/editar/', views.editar_categoria, name='editar_categoria'),
     path('categorias/<int:pk>/eliminar/', views.eliminar_categoria, name='eliminar_categoria'),
+
+
+    # ==================== PASARELAS DE PAGO ====================
+    path('pago/transferencia/<int:pedido_id>/', views.pago_transferencia, name='pago_transferencia'),
+    path('pago/mercadopago/<int:pedido_id>/', views.pago_mercadopago, name='pago_mercadopago'),
+    path('pago/binance/<int:pedido_id>/', views.pago_binance, name='pago_binance'),
+    path('pago/zelle/<int:pedido_id>/', views.pago_zelle, name='pago_zelle'),
 ]

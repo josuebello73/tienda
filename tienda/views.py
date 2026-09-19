@@ -546,3 +546,26 @@ def checkout(request):
             return redirect('pago_zelle', pedido_id=pedido.id)
 
     return render(request, 'tienda/checkout.html', {'carrito': carrito})
+
+@login_required
+def pago_mercadopago(request, pedido_id):
+    """Placeholder. Aquí iría la integración real con MercadoPago."""
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    messages.info(request, "🚧 MercadoPago estará disponible pronto. Por ahora, usa transferencia.")
+    return redirect('pago_transferencia', pedido_id=pedido.id)
+
+
+@login_required
+def pago_binance(request, pedido_id):
+    """Placeholder. Aquí iría la integración real con Binance Pay."""
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    messages.info(request, "🚧 Binance Pay estará disponible pronto. Por ahora, usa transferencia.")
+    return redirect('pago_transferencia', pedido_id=pedido.id)
+
+
+@login_required
+def pago_zelle(request, pedido_id):
+    """Placeholder. Aquí iría la info para pago por Zelle."""
+    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
+    messages.info(request, "🚧 Zelle estará disponible pronto. Por ahora, usa transferencia.")
+    return redirect('pago_transferencia', pedido_id=pedido.id)
