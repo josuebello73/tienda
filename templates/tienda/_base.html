@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Mi Tienda — Moda Premium{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="site-header">
+
+    <!-- Fila principal: logo · buscador · usuario -->
+    <div class="header-main">
+        <a href="{% url 'inicio' %}" class="logo">
+            <span class="logo-icon">👑</span>
+            <span class="logo-text">MI TIENDA</span>
+        </a>
+
+        <form method="get" action="{% url 'lista_productos' %}" class="header-buscador">
+            <input type="text" name="q" placeholder="Buscar prendas, categorías..." value="{{ request.GET.q }}">
+            <button type="submit">🔍</button>
+        </form>
+
+        <nav class="header-nav">
+            {% if user.is_authenticated %}
+
+                <!-- Icono carrito -->
+                <a href="{% url 'ver_carrito' %}" class="nav-icon" title="Carrito">
+                    🛒<span>Carrito</span>
+                </a>
+
+                <!-- Menú desplegable del usuario -->
+                <div class="user-menu">
+                    <span class="user-name">👤 {{ user.first_name|default:user.username }} ▼</span>
+                    <div class="user-dropdown">
+                        <a href="{% url 'mi_perfil' %}">👤 Mi perfil</a>
+                        <a href="{% url 'historial_pedidos' %}">📦 Mis pedidos</a>
+                        <a href="{% url 'ver_carrito' %}">🛒 Mi carrito</a>
+
+                        {% if user.is_staff %}
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-label">⚙️ Administración</div>
+                        <a href="{% url 'lista_admin' %}">📊 Panel de productos</a>
+                        <a href="{% url 'lista_categorias' %}">🏷️ Categorías</a>
+                        <a href="{% url 'crear_producto' %}">➕ Agregar producto</a>
+                        <a href="/admin/">🔧 Admin Django</a>
+                        {% endif %}
+
+                        <div class="dropdown-divider"></div>
+                        <form action="{% url 'logout' %}" method="post" style="margin: 0; padding: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-logout">
+                            🚪 Cerrar sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            {% else %}
+                <a href="{% url 'login' %}" class="btn-outline">Iniciar sesión</a>
+                <a href="{% url 'registro' %}" class="btn-dorado">Registrarse</a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <!-- Menú de navegación principal -->
+    <nav class="header-menu">
+        <a href="{% url 'lista_productos' %}">Catálogo</a>
+        <a href="{% url 'lista_productos' %}?orden=nuevo">Novedades</a>
+        <a href="{% url 'lista_productos' %}?orden=precio_asc">Ofertas</a>
+        <a href="{% url 'lista_productos' %}">Hombre</a>
+        <a href="{% url 'lista_productos' %}">Mujer</a>
+        <a href="{% url 'lista_productos' %}">Accesorios</a>
+
+        {% if user.is_staff %}
+        <a href="{% url 'lista_admin' %}" class="menu-admin">📊 Panel admin</a>
+        {% endif %}
+    </nav>
+</header>
+
+    <!-- Barra superior -->
+    <div class="header-top">
+        <p>✨ Envío gratis en compras superiores a $50 ✨</p>
+    </div>
+
+<!-- ==================== MENSAJES ==================== -->
+{% if messages %}
+<div class="messages-container">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ==================== CONTENIDO ==================== -->
+<main>
+    {% block contenido %}{% endblock %}
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="site-footer">
+    <div class="footer-caja">
+
+        <div class="footer-grid">
+            <!-- Columna 1: Marca -->
+            <div class="footer-col">
+                <h4>👑 MI TIENDA</h4>
+                <p>Moda premium con envío a todo el país. Calidad garantizada y estilo único.</p>
+                <div class="social-icons">
+                    <a href="#" title="Instagram">📷</a>
+                    <a href="#" title="Facebook">📘</a>
+                    <a href="#" title="Twitter">🐦</a>
+                    <a href="#" title="WhatsApp">💬</a>
+                </div>
+            </div>
+
+            <!-- Columna 2: Comprar -->
+            <div class="footer-col">
+                <h4>Comprar</h4>
+                <ul>
+                    <li><a href="{% url 'lista_productos' %}">Catálogo</a></li>
+                    <li><a href="{% url 'lista_productos' %}?orden=nuevo">Novedades</a></li>
+                    <li><a href="{% url 'lista_productos' %}?orden=precio_asc">Ofertas</a></li>
+                    <li><a href="{% url 'ver_carrito' %}">Mi carrito</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna 3: Ayuda -->
+            <div class="footer-col">
+                <h4>Ayuda</h4>
+                <ul>
+                    <li><a href="#">Guía de tallas</a></li>
+                    <li><a href="#">Envíos y devoluciones</a></li>
+                    <li><a href="#">Preguntas frecuentes</a></li>
+                    <li><a href="#">Contacto</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna 4: Contacto -->
+            <div class="footer-col">
+                <h4>Contacto</h4>
+                <ul>
+                    <li>📧 info@mitienda.com</li>
+                    <li>📱 +58 412-000-0000</li>
+                    <li>📍 Caracas, Venezuela</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Línea inferior -->
+        <div class="footer-bottom">
+            <p>&copy; 2025 Mi Tienda. Todos los derechos reservados.</p>
+            <div class="pagos-icons">
+                <span title="Tarjeta">💳</span>
+                <span title="Transferencia">🏦</span>
+                <span title="Efectivo">💰</span>
+                <span title="Pago móvil">📱</span>
+            </div>
+        </div>
+
+    </div>
+</footer>
+<script src="{% static 'Js/Dropdown-menu.js' %}"></script>
+</body>
+</html>
