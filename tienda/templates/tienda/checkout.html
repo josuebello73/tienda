@@ -1,38 +1,85 @@
 {% extends 'tienda/_base.html' %}
-{% block titulo %}Finalizar Compra{% endblock %}
+{% load static %}
+
+{% block titulo %}Finalizar Compra - Mi Tienda{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+{% endblock %}
 
 {% block contenido %}
+
 <section class="seccion-checkout">
+
     <div class="seccion-header">
         <span class="seccion-tag">PASO FINAL</span>
-        <h2>Finalizar Compra</h2>
-        <p>Revisa tu pedido antes de continuar</p>
+        <h1>Finalizar Compra</h1>
+        <p>Elige tu método de pago preferido</p>
     </div>
 
-    <div class="checkout-grid">
-        <div class="checkout-resumen">
+    <div class="checkout-layout">
+
+        <aside class="checkout-resumen">
             <h3>🛒 Tu pedido</h3>
+
             {% for item in carrito %}
             <div class="checkout-item">
-                <span>{{ item.cantidad }}× {{ item.producto.nombre }}</span>
+                <span>
+                    <strong>{{ item.cantidad }}×</strong> {{ item.producto.nombre }}
+                </span>
                 <span>${{ item.total }}</span>
             </div>
             {% endfor %}
+
             <div class="checkout-total">
-                <strong>Total:</strong>
+                <strong>Total</strong>
                 <span class="monto">${{ carrito.total }}</span>
             </div>
-        </div>
+        </aside>
 
-        <div class="checkout-pago">
+        <form method="post" class="checkout-metodos">
+            {% csrf_token %}
+
             <h3>💳 Método de pago</h3>
-            <p>Al confirmar, recibirás los datos bancarios para realizar la transferencia.</p>
-            <form method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn-dorado btn-full">Confirmar y continuar →</button>
-            </form>
-            <a href="{% url 'ver_carrito' %}" class="btn-limpiar">← Volver al carrito</a>
-        </div>
+
+            <label class="metodo-pago">
+                <input type="radio" name="metodo_pago" value="transferencia" checked>
+                <div class="metodo-info">
+                    <strong>🏦 Transferencia bancaria</strong>
+                    <small>Sube tu comprobante después de pagar</small>
+                </div>
+            </label>
+
+            <label class="metodo-pago">
+                <input type="radio" name="metodo_pago" value="mercadopago">
+                <div class="metodo-info">
+                    <strong>💙 MercadoPago</strong>
+                    <small>Tarjeta, débito o efectivo</small>
+                </div>
+            </label>
+
+            <label class="metodo-pago">
+                <input type="radio" name="metodo_pago" value="binance">
+                <div class="metodo-info">
+                    <strong>🟡 Binance Pay (USDT)</strong>
+                    <small>Criptomonedas · Sin comisiones</small>
+                </div>
+            </label>
+
+            <label class="metodo-pago">
+                <input type="radio" name="metodo_pago" value="zelle">
+                <div class="metodo-info">
+                    <strong>💵 Zelle</strong>
+                    <small>Transferencia en USD · Rápido y seguro</small>
+                </div>
+            </label>
+
+            <button type="submit" class="btn-dorado btn-full">
+                Confirmar y continuar →
+            </button>
+        </form>
+
     </div>
 </section>
+
 {% endblock %}

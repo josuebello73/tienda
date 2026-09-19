@@ -1,0 +1,122 @@
+{% extends 'tienda/base_auth.html' %}
+{% load static %}
+
+{% block titulo %}Crear Cuenta - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <span class="auth-icon">✨</span>
+        <h2>Crea tu cuenta</h2>
+        <p>Únete y accede a ofertas exclusivas</p>
+    </div>
+
+    {% if form.errors %}
+    <div class="auth-error">
+        <strong>⚠️ Revisa los siguientes errores:</strong>
+        <ul style="margin: 0.5rem 0 0 1rem; padding: 0; font-size: 0.85rem;">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li><strong>{{ field }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" class="auth-form" novalidate>
+        {% csrf_token %}
+
+        <div class="auth-field">
+            <label for="{{ form.first_name.id_for_label }}">👤 Nombre</label>
+            <input type="text"
+                   name="first_name"
+                   id="{{ form.first_name.id_for_label }}"
+                   placeholder="Tu nombre"
+                   value="{{ form.first_name.value|default:'' }}"
+                   required
+                   autofocus>
+            {% if form.first_name.errors %}
+            <small class="field-error">{{ form.first_name.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <div class="auth-field">
+            <label for="{{ form.last_name.id_for_label }}">👤 Apellido</label>
+            <input type="text"
+                   name="last_name"
+                   id="{{ form.last_name.id_for_label }}"
+                   placeholder="Tu apellido"
+                   value="{{ form.last_name.value|default:'' }}"
+                   required>
+            {% if form.last_name.errors %}
+            <small class="field-error">{{ form.last_name.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <div class="auth-field">
+            <label for="{{ form.username.id_for_label }}">🔑 Usuario</label>
+            <input type="text"
+                   name="username"
+                   id="{{ form.username.id_for_label }}"
+                   placeholder="Elige un nombre de usuario"
+                   value="{{ form.username.value|default:'' }}"
+                   required>
+            {% if form.username.errors %}
+            <small class="field-error">{{ form.username.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <div class="auth-field">
+            <label for="{{ form.email.id_for_label }}">📧 Correo electrónico</label>
+            <input type="email"
+                   name="email"
+                   id="{{ form.email.id_for_label }}"
+                   placeholder="tucorreo@ejemplo.com"
+                   value="{{ form.email.value|default:'' }}"
+                   required>
+            {% if form.email.errors %}
+            <small class="field-error">{{ form.email.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <div class="auth-field">
+            <label for="{{ form.password1.id_for_label }}">🔒 Contraseña</label>
+            <input type="password"
+                   name="password1"
+                   id="{{ form.password1.id_for_label }}"
+                   placeholder="Mínimo 8 caracteres"
+                   required>
+            <small class="field-help">
+                Debe tener al menos 8 caracteres. No puede ser solo números.
+            </small>
+            {% if form.password1.errors %}
+            <small class="field-error">{{ form.password1.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <div class="auth-field">
+            <label for="{{ form.password2.id_for_label }}">🔒 Confirmar contraseña</label>
+            <input type="password"
+                   name="password2"
+                   id="{{ form.password2.id_for_label }}"
+                   placeholder="Repite la contraseña"
+                   required>
+            {% if form.password2.errors %}
+            <small class="field-error">{{ form.password2.errors.0 }}</small>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn-auth">Crear Cuenta</button>
+    </form>
+
+    <div class="auth-divider"><span>o</span></div>
+
+    <p class="auth-footer">
+        ¿Ya tienes cuenta?
+        <a href="{% url 'login' %}">Inicia sesión</a>
+    </p>
+</div>
+
+{% endblock %}

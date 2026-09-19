@@ -1,0 +1,143 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Pedidos - Mi Tienda{% endblock %}
+
+{% block contenido %}
+
+<section class="admin-panel">
+
+    <!-- ==================== ENCABEZADO ==================== -->
+    <div class="admin-panel-header">
+        <div class="admin-panel-titulo">
+            <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
+            <h1>📦 Gestión de Pedidos</h1>
+            <p>{{ stats.total }} pedido{{ stats.total|pluralize }} en total</p>
+        </div>
+        <div class="admin-panel-acciones">
+            <a href="{% url 'lista_admin' %}" class="btn-outline">📊 Productos</a>
+            <a href="{% url 'lista_categorias' %}" class="btn-outline">🏷️ Categorías</a>
+        </div>
+    </div>
+
+    <!-- ==================== ESTADÍSTICAS ==================== -->
+    <div class="admin-stats-grid">
+        <div class="admin-stat-card total">
+            <div class="stat-card-icon">📦</div>
+            <div class="stat-card-content">
+                <h3>{{ stats.total }}</h3>
+                <p>Pedidos totales</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+
+        <div class="admin-stat-card bajo">
+            <div class="stat-card-icon">⏳</div>
+            <div class="stat-card-content">
+                <h3>{{ stats.pendientes }}</h3>
+                <p>Pendientes</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+
+        <div class="admin-stat-card disponible">
+            <div class="stat-card-icon">✅</div>
+            <div class="stat-card-content">
+                <h3>{{ stats.pagados }}</h3>
+                <p>Pagados</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+
+        <div class="admin-stat-card dinero">
+            <div class="stat-card-icon">💰</div>
+            <div class="stat-card-content">
+                <h3>${{ stats.ingresos|floatformat:0 }}</h3>
+                <p>Ingresos</p>
+            </div>
+            <div class="stat-card-bg"></div>
+        </div>
+    </div>
+
+    <!-- ==================== FILTROS ==================== -->
+    <div class="admin-toolbar">
+        <form method="get" class="admin-buscador">
+            <input type="text" name="q" placeholder="🔍 Buscar por #pedido, usuario o referencia..." value="{{ request.GET.q }}">
+
+            <select name="estado">
+                <option value="">Todos los estados</option>
+                <option value="pendiente" {% if request.GET.estado == 'pendiente' %}selected{% endif %}>⏳ Pendientes</option>
+                <option value="pagado" {% if request.GET.estado == 'pagado' %}selected{% endif %}>✅ Pagados</option>
+                <option value="enviado" {% if request.GET.estado == 'enviado' %}selected{% endif %}>🚚 Enviados</option>
+                <option value="entregado" {% if request.GET.estado == 'entregado' %}selected{% endif %}>📬 Entregados</option>
+                <option value="cancelado" {% if request.GET.estado == 'cancelado' %}selected{% endif %}>❌ Cancelados</option>
+            </select>
+
+            <button type="submit" class="btn-dorado">Filtrar</button>
+            <a href="{% url 'lista_pedidos_admin' %}" class="btn-limpiar" style="align-self: center;">Limpiar</a>
+        </form>
+    </div>
+
+    <!-- ==================== TABLA ==================== -->
+    {% if pedidos %}
+    <div class="admin-tabla-contenedor">
+        <table class="admin-tabla">
+            <thead>
+                <tr>
+                    <th>Pedido</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pedidos %}
+                <tr class="admin-fila">
+                    <td>
+                        <strong class="tabla-precio">#{{ p.id }}</strong>
+                        {% if p.referencia_transferencia %}
+                        <br><small style="color: var(--gris-texto);">Ref: {{ p.referencia_transferencia }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="tabla-producto-info">
+                            <strong class="tabla-nombre">{{ p.usuario.get_full_name|default:p.usuario.username }}</strong>
+                            <span class="tabla-fecha">{{ p.usuario.email }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="tabla-fecha">{{ p.creado|date:"d/m/Y H:i" }}</span>
+                    </td>
+                    <td>
+                        <strong class="tabla-precio">${{ p.total }}</strong>
+                    </td>
+                    <td>
+                        <span class="pedido-estado estado-{{ p.estado }}">
+                            {{ p.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="tabla-acciones" style="justify-content: flex-end;">
+                            <a href="{% url 'detalle_pedido_admin' p.id %}" class="btn-accion ver" title="Ver detalle">
+                                👁️
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="admin-vacio">
+        <div class="admin-vacio-icon">📦</div>
+        <h3>No hay pedidos</h3>
+        <p>Cuando los clientes realicen compras, aparecerán aquí.</p>
+    </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}

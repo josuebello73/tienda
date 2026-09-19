@@ -1,0 +1,240 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Mi Tienda — Moda Premium{% endblock %}
+
+{% block contenido %}
+
+<!-- ==================== HERO PRINCIPAL ==================== -->
+<section class="hero">
+    <div class="hero-content">
+        <span class="hero-tag">NUEVA COLECCIÓN 2025</span>
+        <h1 class="hero-title">Elegancia que<br>define tu estilo</h1>
+        <p class="hero-subtitle">Descubre prendas exclusivas diseñadas para quienes valoran la calidad y el detalle.</p>
+        <div class="hero-buttons">
+            <a href="#catalogo" class="btn-dorado btn-lg">Explorar colección</a>
+            <a href="#categorias" class="btn-outline btn-lg">Ver categorías</a>
+        </div>
+    </div>
+    <div class="hero-decoration"></div>
+</section>
+
+<!-- ==================== BENEFICIOS ==================== -->
+<section class="beneficios">
+    <div class="beneficio">
+        <span class="beneficio-icon">🚚</span>
+        <div>
+            <h4>Envío gratis</h4>
+            <p>En compras +$50</p>
+        </div>
+    </div>
+    <div class="beneficio">
+        <span class="beneficio-icon">↩️</span>
+        <div>
+            <h4>Devolución fácil</h4>
+            <p>Hasta 30 días</p>
+        </div>
+    </div>
+    <div class="beneficio">
+        <span class="beneficio-icon">🔒</span>
+        <div>
+            <h4>Pago seguro</h4>
+            <p>Transferencia verificada</p>
+        </div>
+    </div>
+    <div class="beneficio">
+        <span class="beneficio-icon">💎</span>
+        <div>
+            <h4>Calidad premium</h4>
+            <p>Materiales selectos</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CATEGORÍAS DESTACADAS ==================== -->
+{% if categorias %}
+<section id="categorias" class="seccion-categorias">
+    <div class="seccion-header">
+        <span class="seccion-tag">EXPLORA</span>
+        <h2>Compra por categoría</h2>
+    </div>
+
+    <div class="categorias-grid">
+        {% for c in categorias|slice:":6" %}
+        <a href="{% url 'lista_productos' %}?categoria={{ c.id }}" class="categoria-card">
+            <div class="categoria-overlay"></div>
+            <div class="categoria-contenido">
+                <h3>{{ c.nombre }}</h3>
+                <span>Ver productos →</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- ==================== CATÁLOGO CON FILTROS ==================== -->
+<section id="catalogo" class="seccion-catalogo">
+    <div class="seccion-header">
+        <span class="seccion-tag">CATÁLOGO</span>
+        <h2>Nuestros productos</h2>
+        <p>Filtra y encuentra tu estilo perfecto</p>
+    </div>
+
+    <div class="catalogo-layout">
+
+        <!-- SIDEBAR FILTROS -->
+        <aside class="sidebar-filtros">
+            <h3>⚙️ Filtros</h3>
+            <form method="get">
+                {% if request.GET.q %}
+                <input type="hidden" name="q" value="{{ request.GET.q }}">
+                {% endif %}
+
+                <h4>👕 Categoría</h4>
+                <select name="categoria">
+                    <option value="">Todas</option>
+                    {% for c in categorias %}
+                    <option value="{{ c.id }}" {% if request.GET.categoria == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <h4>💰 Precio (USD)</h4>
+                <div class="precio-inputs">
+                    <input type="number" name="precio_min" placeholder="Mín" value="{{ request.GET.precio_min }}" min="0">
+                    <input type="number" name="precio_max" placeholder="Máx" value="{{ request.GET.precio_max }}" min="0">
+                </div>
+
+                <h4>📊 Ordenar</h4>
+                <select name="orden">
+                    <option value="">Relevancia</option>
+                    <option value="precio_asc" {% if request.GET.orden == 'precio_asc' %}selected{% endif %}>Precio ↑</option>
+                    <option value="precio_desc" {% if request.GET.orden == 'precio_desc' %}selected{% endif %}>Precio ↓</option>
+                    <option value="nuevo" {% if request.GET.orden == 'nuevo' %}selected{% endif %}>Más nuevos</option>
+                </select>
+
+                <button type="submit" class="btn-dorado btn-full">Aplicar filtros</button>
+                <a href="{% url 'lista_productos' %}" class="btn-limpiar">Limpiar filtros</a>
+            </form>
+        </aside>
+
+        <!-- GRID PRODUCTOS -->
+        <div class="productos-container">
+
+            <!-- ==================== BARRA DE ADMIN ARRIBA ==================== -->
+            {% if user.is_staff %}
+            <div class="admin-bar">
+                <div class="admin-bar-info">
+                    <span class="admin-badge">👑 MODO ADMIN</span>
+                    <span class="admin-bar-text">Estás viendo la tienda como administrador</span>
+                </div>
+                <div class="admin-bar-actions">
+                    <a href="{% url 'lista_admin' %}" class="btn-admin-bar">📊 Panel de productos</a>
+                    <a href="{% url 'lista_categorias' %}" class="btn-admin-bar">🏷️ Categorías</a>
+                    <a href="{% url 'crear_producto' %}" class="btn-dorado btn-admin-bar">➕ Nuevo producto</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="resultados-info">
+                {% if productos %}
+                    <strong>{{ productos|length }}</strong> producto{{ productos|length|pluralize }} encontrado{{ productos|length|pluralize }}
+                    {% if request.GET.q %}para "<strong>{{ request.GET.q }}</strong>"{% endif %}
+                {% else %}
+                    Sin resultados
+                {% endif %}
+            </div>
+
+            <div class="productos-grid">
+                {% for p in productos %}
+                <article class="card-producto">
+
+                    <!-- ==================== BOTONES ADMIN SOBRE LA IMAGEN ==================== -->
+                    {% if user.is_staff %}
+                    <div class="card-admin-actions">
+                        <a href="{% url 'editar_producto' p.pk %}" class="btn-icon-mini edit" title="Editar">✏️</a>
+                        <a href="{% url 'eliminar_producto' p.pk %}" class="btn-icon-mini delete" title="Eliminar">🗑️</a>
+                    </div>
+                    {% endif %}
+
+                    <a href="{% url 'detalle_producto' p.pk %}" class="card-imagen">
+                        {% if p.imagen %}
+                            <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}">
+                        {% else %}
+                            <div class="sin-imagen">👕</div>
+                        {% endif %}
+
+                        {% if p.stock == 0 %}
+                            <span class="badge badge-agotado">Agotado</span>
+                        {% elif p.stock < 5 %}
+                            <span class="badge badge-pocas">Últimas {{ p.stock }}</span>
+                        {% endif %}
+
+                        {% if p.precio < 30 %}
+                            <span class="badge badge-oferta">OFERTA</span>
+                        {% endif %}
+                    </a>
+
+                    <div class="card-info">
+                        <span class="card-categoria">{{ p.categoria.nombre }}</span>
+                        <h3 class="card-nombre"><a href="{% url 'detalle_producto' p.pk %}">{{ p.nombre }}</a></h3>
+                        <p class="card-descripcion">{{ p.descripcion|truncatewords:8 }}</p>
+
+                        <div class="card-precio-stock">
+                            <span class="card-precio">${{ p.precio }}</span>
+                            {% if p.stock > 0 %}
+                                <span class="card-stock">✅ {{ p.stock }}</span>
+                            {% else %}
+                                <span class="card-stock-agotado">❌</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="card-acciones">
+                            {% if p.stock > 0 %}
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'agregar_al_carrito' p.id %}" class="btn-dorado btn-carrito">🛒 Agregar</a>
+                                {% else %}
+                                    <a href="{% url 'login' %}?next={% url 'agregar_al_carrito' p.id %}" class="btn-dorado btn-carrito">🛒 Agregar</a>
+                                {% endif %}
+                            {% else %}
+                                <button class="btn-deshabilitado" disabled>Sin stock</button>
+                            {% endif %}
+                            <a href="{% url 'detalle_producto' p.pk %}" class="btn-ver">👁️</a>
+                        </div>
+                    </div>
+                </article>
+                {% empty %}
+                <div class="sin-productos">
+                    <span style="font-size:4rem;">🔍</span>
+                    <h3>No encontramos productos</h3>
+                    <p>Prueba ajustando los filtros o busca algo diferente.</p>
+                    <a href="{% url 'lista_productos' %}" class="btn-dorado">Ver todo</a>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if user.is_staff %}
+            <div class="admin-acciones">
+                <a href="{% url 'lista_admin' %}" class="btn-admin">📊 Panel de productos</a>
+                <a href="{% url 'lista_categorias' %}" class="btn-admin">🏷️ Categorías</a>
+                <a href="{% url 'crear_producto' %}" class="btn-dorado">➕ Nuevo producto</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CTA FINAL ==================== -->
+<section class="cta-final">
+    <h2>¿Listo para renovar tu guardarropa?</h2>
+    <p>Regístrate y obtén acceso a ofertas exclusivas</p>
+    {% if not user.is_authenticated %}
+        <a href="{% url 'registro' %}" class="btn-dorado btn-lg">Crear cuenta gratis</a>
+    {% else %}
+        <a href="#catalogo" class="btn-dorado btn-lg">Seguir comprando</a>
+    {% endif %}
+</section>
+
+{% endblock %}

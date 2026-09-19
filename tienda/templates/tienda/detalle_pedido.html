@@ -1,0 +1,154 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Pedido #{{ pedido.id }} - Mi Tienda{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/detalle_pedido.css' %}">
+{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion-detalle-pedido">
+
+    <!-- ==================== ENCABEZADO ==================== -->
+    <div class="detalle-pedido-header">
+        <a href="{% url 'historial_pedidos' %}" class="btn-volver">← Volver a mis pedidos</a>
+        <span class="seccion-tag">DETALLE DEL PEDIDO</span>
+        <h1>Pedido #{{ pedido.id }}</h1>
+        <p>Realizado el {{ pedido.creado|date:"d/m/Y a las H:i" }}</p>
+    </div>
+
+    <!-- ==================== ESTADO + TOTAL ==================== -->
+    <div class="detalle-pedido-resumen">
+        <div class="resumen-item">
+            <span class="resumen-label">Estado</span>
+            <span class="pedido-estado estado-{{ pedido.estado }}">
+                {{ pedido.get_estado_display }}
+            </span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Método de pago</span>
+            <span class="resumen-valor">{{ pedido.get_metodo_pago_display }}</span>
+        </div>
+        <div class="resumen-item">
+            <span class="resumen-label">Total</span>
+            <span class="resumen-valor total">${{ pedido.total }}</span>
+        </div>
+    </div>
+
+    <!-- ==================== LÍNEA DE TIEMPO ====================
+         Muestra el progreso del pedido en 4 pasos -->
+    <div class="timeline">
+        <div class="timeline-step {% if pedido.estado in 'pendiente,pagado,enviado,entregado' %}active{% endif %}">
+            <div class="timeline-icon">📝</div>
+            <span class="timeline-label">Creado</span>
+        </div>
+        <div class="timeline-line"></div>
+        <div class="timeline-step {% if pedido.estado in 'pagado,enviado,entregado' %}active{% endif %}">
+            <div class="timeline-icon">💳</div>
+            <span class="timeline-label">Pagado</span>
+        </div>
+        <div class="timeline-line"></div>
+        <div class="timeline-step {% if pedido.estado in 'enviado,entregado' %}active{% endif %}">
+            <div class="timeline-icon">🚚</div>
+            <span class="timeline-label">Enviado</span>
+        </div>
+        <div class="timeline-line"></div>
+        <div class="timeline-step {% if pedido.estado == 'entregado' %}active{% endif %}">
+            <div class="timeline-icon">📬</div>
+            <span class="timeline-label">Entregado</span>
+        </div>
+    </div>
+
+    <div class="detalle-pedido-grid">
+
+        <!-- ==================== PRODUCTOS ==================== -->
+        <div class="detalle-pedido-card">
+            <div class="card-header">
+                <h3>🛍️ Productos</h3>
+                <span class="badge-count">{{ pedido.items.count }} item{{ pedido.items.count|pluralize }}</span>
+            </div>
+
+            <div class="items-lista">
+                {% for item in pedido.items.all %}
+                <div class="item-row">
+                    <div class="item-info">
+                        <span class="item-cantidad">{{ item.cantidad }}×</span>
+                        <div class="item-nombre-wrapper">
+                            {% if item.producto %}
+                            <a href="{% url 'detalle_producto' item.producto.pk %}" class="item-nombre">
+                                {{ item.producto.nombre }}
+                            </a>
+                            {% else %}
+                            <span class="item-nombre">Producto eliminado</span>
+                            {% endif %}
+                            <span class="item-precio-unit">${{ item.precio }} c/u</span>
+                        </div>
+                    </div>
+                    <span class="item-subtotal">${{ item.subtotal }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="items-total">
+                <span>Total</span>
+                <span class="monto">${{ pedido.total }}</span>
+            </div>
+        </div>
+
+        <!-- ==================== INFO DE PAGO ==================== -->
+        <div class="detalle-pedido-card">
+            <div class="card-header">
+                <h3>💳 Información de pago</h3>
+            </div>
+
+            <ul class="info-lista">
+                <li>
+                    <span class="info-label">Método</span>
+                    <span class="info-valor">{{ pedido.get_metodo_pago_display }}</span>
+                </li>
+                <li>
+                    <span class="info-label">Estado</span>
+                    <span class="info-valor">{{ pedido.get_estado_display }}</span>
+                </li>
+                {% if pedido.referencia_transferencia %}
+                <li>
+                    <span class="info-label">Referencia</span>
+                    <span class="info-valor">{{ pedido.referencia_transferencia }}</span>
+                </li>
+                {% endif %}
+                {% if pedido.pagado_en %}
+                <li>
+                    <span class="info-label">Pagado el</span>
+                    <span class="info-valor">{{ pedido.pagado_en|date:"d/m/Y H:i" }}</span>
+                </li>
+                {% endif %}
+                <li>
+                    <span class="info-label">Última actualización</span>
+                    <span class="info-valor">{{ pedido.actualizado|date:"d/m/Y H:i" }}</span>
+                </li>
+            </ul>
+
+            {% if pedido.comprobante %}
+            <a href="{{ pedido.comprobante.url }}" target="_blank" class="btn-outline btn-full" style="margin-top: 1rem;">
+                📎 Ver comprobante subido
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- ==================== ACCIONES ==================== -->
+    <div class="detalle-pedido-acciones">
+        <a href="{% url 'lista_productos' %}" class="btn-dorado">
+            🛍️ Seguir comprando
+        </a>
+        <a href="{% url 'historial_pedidos' %}" class="btn-outline">
+            📦 Ver todos mis pedidos
+        </a>
+    </div>
+
+</section>
+
+{% endblock %}
