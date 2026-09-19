@@ -1,0 +1,125 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Pedido #{{ pedido.id }} - Admin{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion-detalle-pedido-admin">
+
+    <div class="admin-panel-header">
+        <div class="admin-panel-titulo">
+            <span class="seccion-tag">ADMIN · PEDIDO #{{ pedido.id }}</span>
+            <h1>📋 Pedido de {{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</h1>
+            <p>{{ pedido.creado|date:"d/m/Y H:i" }}</p>
+        </div>
+        <a href="{% url 'lista_pedidos_admin' %}" class="btn-outline">← Volver a la lista</a>
+    </div>
+
+    <div class="pedido-admin-grid">
+
+        <!-- ==================== COLUMNA IZQUIERDA ==================== -->
+        <div class="pedido-admin-info">
+
+            <div class="perfil-card">
+                <div class="perfil-card-header">
+                    <h3>👤 Datos del cliente</h3>
+                </div>
+                <ul class="pago-datos-lista">
+                    <li>
+                        <span class="label">Nombre</span>
+                        <span class="valor">{{ pedido.usuario.get_full_name|default:pedido.usuario.username }}</span>
+                    </li>
+                    <li>
+                        <span class="label">Usuario</span>
+                        <span class="valor">@{{ pedido.usuario.username }}</span>
+                    </li>
+                    <li>
+                        <span class="label">Email</span>
+                        <span class="valor">{{ pedido.usuario.email }}</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="perfil-card">
+                <div class="perfil-card-header">
+                    <h3>💳 Pago</h3>
+                </div>
+                <ul class="pago-datos-lista">
+                    <li>
+                        <span class="label">Método</span>
+                        <span class="valor">{{ pedido.get_metodo_pago_display }}</span>
+                    </li>
+                    <li>
+                        <span class="label">Referencia</span>
+                        <span class="valor">{{ pedido.referencia_transferencia|default:"—" }}</span>
+                    </li>
+                    <li>
+                        <span class="label">Pagado el</span>
+                        <span class="valor">{{ pedido.pagado_en|date:"d/m/Y H:i"|default:"—" }}</span>
+                    </li>
+                </ul>
+
+                {% if pedido.comprobante %}
+                <div style="margin-top: 1rem;">
+                    <p class="label" style="margin-bottom: 0.5rem;">📎 Comprobante:</p>
+                    <a href="{{ pedido.comprobante.url }}" target="_blank" class="btn-outline btn-full">
+                        Ver comprobante
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- ==================== COLUMNA DERECHA ==================== -->
+        <div class="pedido-admin-productos">
+
+            <div class="perfil-card">
+                <div class="perfil-card-header">
+                    <h3>🛍️ Productos</h3>
+                    <span class="tabla-precio">Total: ${{ pedido.total }}</span>
+                </div>
+
+                <div class="pedido-items">
+                    {% for item in pedido.items.all %}
+                    <div class="pedido-item">
+                        <span>{{ item.cantidad }}× {{ item.producto.nombre }}</span>
+                        <span class="tabla-precio">${{ item.subtotal }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ==================== CAMBIAR ESTADO ==================== -->
+            <div class="perfil-card" style="border-color: var(--dorado);">
+                <div class="perfil-card-header">
+                    <h3>⚙️ Actualizar estado</h3>
+                </div>
+
+                <form method="post" class="perfil-form">
+                    {% csrf_token %}
+
+                    <div class="perfil-field">
+                        <label for="estado">Estado actual</label>
+                        <select name="estado" id="estado" class="form-input" required>
+                            {% for valor, etiqueta in pedido.ESTADOS %}
+                            <option value="{{ valor }}" {% if pedido.estado == valor %}selected{% endif %}>
+                                {{ etiqueta }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-dorado btn-full">
+                        💾 Guardar cambio
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}

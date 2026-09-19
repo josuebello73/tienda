@@ -5,6 +5,7 @@
 
 {% block contenido %}
 
+<!-- seccion-perfil: contenedor principal que limita el ancho y centra -->
 <section class="seccion-perfil">
     <div class="perfil-header">
         <div class="perfil-avatar">
@@ -17,96 +18,124 @@
         </div>
     </div>
 
-    <!-- Stats rápidas -->
+    <!-- ==================== TARJETAS DE ESTADÍSTICAS ====================
+         4 columnas con datos rápidos del usuario -->
     <div class="perfil-stats">
-        <div class="stat-card">
-            <span class="stat-icon">📦</span>
-            <div>
+
+        <div class="perfil-stat">
+            <div class="perfil-stat-icon">📦</div>
+            <div class="perfil-stat-info">
                 <h4>{{ total_pedidos }}</h4>
                 <p>Pedidos totales</p>
             </div>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">🗓️</span>
-            <div>
+
+        <div class="perfil-stat">
+            <div class="perfil-stat-icon">🗓️</div>
+            <div class="perfil-stat-info">
                 <h4>{{ user.date_joined|date:"M Y" }}</h4>
                 <p>Miembro desde</p>
             </div>
         </div>
-        <div class="stat-card">
-            <span class="stat-icon">🛒</span>
-            <div>
-                <h4><a href="{% url 'ver_carrito' %}" class="stat-link">Ir al carrito</a></h4>
-                <p>Ver mis productos</p>
+
+        <div class="perfil-stat">
+            <div class="perfil-stat-icon">🛒</div>
+            <div class="perfil-stat-info">
+                <h4><a href="{% url 'ver_carrito' %}" class="perfil-stat-link">Mi carrito</a></h4>
+                <p>Ver productos</p>
+            </div>
+        </div>
+
+        <div class="perfil-stat">
+            <div class="perfil-stat-icon">📋</div>
+            <div class="perfil-stat-info">
+                <h4><a href="{% url 'historial_pedidos' %}" class="perfil-stat-link">Mis pedidos</a></h4>
+                <p>Historial</p>
             </div>
         </div>
     </div>
 
+    <!-- ==================== GRID DE 2 FORMULARIOS ====================
+         Datos personales (izquierda) | Cambio contraseña (derecha) -->
     <div class="perfil-grid">
 
-        <!-- ==================== DATOS PERSONALES ==================== -->
+        <!-- ---------- FORMULARIO 1: DATOS PERSONALES ---------- -->
         <div class="perfil-card">
             <div class="perfil-card-header">
-                <h3>👤 Datos personales</h3>
-                <p>Actualiza tu información de contacto</p>
+                <div>
+                    <h3>👤 Datos personales</h3>
+                    <p>Actualiza tu información de contacto</p>
+                </div>
             </div>
 
-            <form method="post" class="perfil-form">
+            <form method="post" class="perfil-form" enctype="multipart/form-data">
                 {% csrf_token %}
+                <!-- accion=datos le dice a la vista que este form actualiza datos -->
                 <input type="hidden" name="accion" value="datos">
 
-                <div class="form-row">
-                    <div class="form-field">
+                <div class="perfil-form-row">
+                    <div class="perfil-field">
                         <label for="id_first_name">Nombre</label>
                         <input type="text" name="first_name" id="id_first_name"
                                value="{{ user.first_name }}" placeholder="Tu nombre">
                     </div>
-                    <div class="form-field">
+                    <div class="perfil-field">
                         <label for="id_last_name">Apellido</label>
                         <input type="text" name="last_name" id="id_last_name"
                                value="{{ user.last_name }}" placeholder="Tu apellido">
                     </div>
                 </div>
 
-                <div class="form-field">
+                <div class="perfil-field">
                     <label for="id_email">Correo electrónico</label>
                     <input type="email" name="email" id="id_email"
                            value="{{ user.email }}" placeholder="tucorreo@ejemplo.com">
                 </div>
 
-                <div class="form-field">
+                <div class="perfil-field">
                     <label>Usuario (no editable)</label>
                     <input type="text" value="{{ user.username }}" disabled class="input-disabled">
+                </div>
+
+                <div class="form-field">
+                    <label for="id_avatar">Cambiar foto de perfil</label>
+                    <input type="file" name="avatar" id="id_avatar" accept="image/*" style="color: #a0aab8; padding: 10px 0;">
                 </div>
 
                 <button type="submit" class="btn-dorado btn-full">💾 Guardar cambios</button>
             </form>
         </div>
 
-        <!-- ==================== CAMBIO DE CONTRASEÑA ==================== -->
+        <!-- ---------- FORMULARIO 2: CAMBIO DE CONTRASEÑA ---------- -->
         <div class="perfil-card">
             <div class="perfil-card-header">
-                <h3>🔒 Cambiar contraseña</h3>
-                <p>Por seguridad, te recomendamos cambiarla periódicamente</p>
+                <div>
+                    <h3>🔒 Cambiar contraseña</h3>
+                    <p>Por seguridad, cámbiala periódicamente</p>
+                </div>
             </div>
 
             <form method="post" class="perfil-form">
                 {% csrf_token %}
+                <!-- accion=password le dice a la vista que este form cambia contraseña -->
                 <input type="hidden" name="accion" value="password">
 
-                <div class="form-field">
+                <div class="perfil-field">
                     <label for="id_old_password">Contraseña actual</label>
-                    <input type="password" name="old_password" id="id_old_password" required>
+                    <input type="password" name="old_password" id="id_old_password"
+                           placeholder="Tu contraseña actual" required>
                 </div>
 
-                <div class="form-field">
+                <div class="perfil-field">
                     <label for="id_new_password1">Nueva contraseña</label>
-                    <input type="password" name="new_password1" id="id_new_password1" required>
+                    <input type="password" name="new_password1" id="id_new_password1"
+                           placeholder="Mínimo 8 caracteres" required>
                 </div>
 
-                <div class="form-field">
+                <div class="perfil-field">
                     <label for="id_new_password2">Confirmar nueva contraseña</label>
-                    <input type="password" name="new_password2" id="id_new_password2" required>
+                    <input type="password" name="new_password2" id="id_new_password2"
+                           placeholder="Repite la nueva contraseña" required>
                 </div>
 
                 <button type="submit" class="btn-outline btn-full">🔑 Cambiar contraseña</button>
@@ -114,22 +143,26 @@
         </div>
     </div>
 
-    <!-- ==================== ÚLTIMOS PEDIDOS ==================== -->
+    <!-- ==================== ÚLTIMOS PEDIDOS ====================
+         Solo si el usuario tiene pedidos -->
     {% if pedidos_usuario %}
-    <div class="perfil-card">
+    <div class="perfil-card perfil-card-full">
         <div class="perfil-card-header">
-            <h3>📦 Últimos pedidos</h3>
+            <div>
+                <h3>📦 Últimos pedidos</h3>
+                <p>Tus compras más recientes</p>
+            </div>
             <a href="{% url 'historial_pedidos' %}" class="link-ver-todos">Ver todos →</a>
         </div>
 
         <div class="perfil-pedidos">
             {% for pedido in pedidos_usuario %}
             <a href="{% url 'detalle_pedido' pedido.id %}" class="perfil-pedido-row">
-                <div>
+                <div class="perfil-pedido-info">
                     <strong>Pedido #{{ pedido.id }}</strong>
-                    <span class="perfil-pedido-fecha">{{ pedido.creado|date:"d/m/Y" }}</span>
+                    <span class="perfil-pedido-fecha">{{ pedido.creado|date:"d/m/Y H:i" }}</span>
                 </div>
-                <div class="perfil-pedido-estado">
+                <div class="perfil-pedido-derecha">
                     <span class="pedido-estado estado-{{ pedido.estado }}">
                         {{ pedido.get_estado_display }}
                     </span>
@@ -145,6 +178,7 @@
     <div class="perfil-logout">
         <a href="{% url 'logout' %}" class="btn-danger-outline">🚪 Cerrar sesión</a>
     </div>
+
 </section>
 
 {% endblock %}

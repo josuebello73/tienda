@@ -30,7 +30,7 @@
     <!-- Fila principal: logo · buscador · usuario -->
     <div class="header-main">
 
-        <a href="{% url 'lista_productos' %}" class="logo">
+        <a href="{% url 'inicio' %}" class="logo">
             <span class="logo-icon">👑</span>
             <span class="logo-text">MI TIENDA</span>
         </a>
@@ -49,7 +49,16 @@
         {% endif %}
 
         <div class="user-menu">
-            <span class="user-name">👤 {{ user.first_name|default:user.username }} ▼</span>
+            <span class="user-name">
+                {% if user.perfil and user.perfil.avatar %}
+                    <span class="user-avatar-mini">
+                        <img src="{{ user.perfil.avatar.url }}" alt="Foto de perfil de {{ user.username }}">
+                    </span>
+                {% else %}
+                    <span class="user-avatar-default">👤</span>
+                {% endif %}
+                {{ user.first_name|default:user.username }} ▼
+            </span>
 
             <div class="user-dropdown">
                 <a href="{% url 'mi_perfil' %}">👤 Mi perfil</a>

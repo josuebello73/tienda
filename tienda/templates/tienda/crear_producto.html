@@ -1,21 +1,33 @@
 {% extends 'tienda/_base.html' %}
 {% load static %}
 
-{% block titulo %}Crear Producto - Mi Tienda{% endblock %}
+{% block titulo %}Nuevo Producto - Mi Tienda{% endblock %}
 
 {% block contenido %}
 
+<!-- ==========================================================================
+     SECCIÓN DE FORMULARIO ADMIN
+     Contenedor principal con ancho máximo y márgenes automáticos
+     ========================================================================== -->
 <section class="seccion-form-admin">
+
+    <!-- ==================== ENCABEZADO ====================
+         Título y subtítulo centrados con tag dorado arriba -->
     <div class="form-admin-header">
         <span class="seccion-tag">PANEL DE ADMINISTRACIÓN</span>
         <h2>➕ Nuevo Producto</h2>
         <p>Agrega una nueva prenda al catálogo</p>
     </div>
 
+    <!-- ==================== TARJETA DEL FORMULARIO ====================
+         form-admin-wrapper: caja con fondo azul y borde redondeado -->
     <div class="form-admin-wrapper">
+
+        <!-- enctype="multipart/form-data" es OBLIGATORIO para subir imágenes -->
         <form method="post" enctype="multipart/form-data" class="form-admin">
             {% csrf_token %}
 
+            <!-- Errores generales del formulario (no de un campo específico) -->
             {% if form.non_field_errors %}
             <div class="form-error">
                 {% for error in form.non_field_errors %}
@@ -24,49 +36,61 @@
             </div>
             {% endif %}
 
-            <!-- Nombre -->
+            <!-- ==================== NOMBRE ====================
+                 form-field es la caja que apila label + input verticalmente -->
             <div class="form-field">
                 <label for="{{ form.nombre.id_for_label }}">📝 Nombre del producto *</label>
                 {{ form.nombre }}
-                {% if form.nombre.errors %}<small class="field-error">{{ form.nombre.errors.0 }}</small>{% endif %}
+                {% if form.nombre.errors %}
+                <small class="field-error">{{ form.nombre.errors.0 }}</small>
+                {% endif %}
             </div>
 
-            <!-- Descripción -->
+            <!-- ==================== DESCRIPCIÓN ==================== -->
             <div class="form-field">
                 <label for="{{ form.descripcion.id_for_label }}">📄 Descripción *</label>
                 {{ form.descripcion }}
-                {% if form.descripcion.errors %}<small class="field-error">{{ form.descripcion.errors.0 }}</small>{% endif %}
+                {% if form.descripcion.errors %}
+                <small class="field-error">{{ form.descripcion.errors.0 }}</small>
+                {% endif %}
             </div>
 
-            <!-- Precio y Stock en fila -->
+            <!-- ==================== PRECIO + STOCK EN 2 COLUMNAS ====================
+                 form-row crea un grid de 2 columnas -->
             <div class="form-row">
                 <div class="form-field">
                     <label for="{{ form.precio.id_for_label }}">💰 Precio (USD) *</label>
                     {{ form.precio }}
-                    {% if form.precio.errors %}<small class="field-error">{{ form.precio.errors.0 }}</small>{% endif %}
+                    {% if form.precio.errors %}
+                    <small class="field-error">{{ form.precio.errors.0 }}</small>
+                    {% endif %}
                 </div>
                 <div class="form-field">
                     <label for="{{ form.stock.id_for_label }}">📦 Stock *</label>
                     {{ form.stock }}
-                    {% if form.stock.errors %}<small class="field-error">{{ form.stock.errors.0 }}</small>{% endif %}
+                    {% if form.stock.errors %}
+                    <small class="field-error">{{ form.stock.errors.0 }}</small>
+                    {% endif %}
                 </div>
             </div>
 
-            <!-- Categoría -->
+            <!-- ==================== CATEGORÍA ==================== -->
             <div class="form-field">
                 <label for="{{ form.categoria.id_for_label }}">🏷️ Categoría *</label>
                 {{ form.categoria }}
-                {% if form.categoria.errors %}<small class="field-error">{{ form.categoria.errors.0 }}</small>{% endif %}
+                {% if form.categoria.errors %}
+                <small class="field-error">{{ form.categoria.errors.0 }}</small>
+                {% endif %}
             </div>
 
-            <!-- Imagen con preview -->
+            <!-- ==================== IMAGEN CON DRAG & DROP ====================
+                 upload-zone: zona punteada clicable donde se arrastra la imagen
+                 El input file está oculto (opacity 0) y el label lo hace clicable -->
             <div class="form-field">
-                <label for="{{ form.imagen.id_for_label }}">🖼️ Imagen del producto</label>
+                <label>🖼️ Imagen del producto</label>
+
                 <div class="upload-zone" id="uploadZone">
-                    <input type="file" 
-                           name="imagen" 
-                           id="id_imagen" 
-                           accept="image/*">
+                    <input type="file" name="imagen" id="id_imagen" accept="image/*">
                     <label for="id_imagen" class="upload-label">
                         <div class="upload-preview" id="uploadPreview">
                             <span class="upload-icon">📷</span>
@@ -75,10 +99,13 @@
                         </div>
                     </label>
                 </div>
-                {% if form.imagen.errors %}<small class="field-error">{{ form.imagen.errors.0 }}</small>{% endif %}
+
+                {% if form.imagen.errors %}
+                <small class="field-error">{{ form.imagen.errors.0 }}</small>
+                {% endif %}
             </div>
 
-            <!-- Disponible -->
+            <!-- ==================== DISPONIBLE (checkbox) ==================== -->
             <div class="form-field form-check-field">
                 <label class="check-label">
                     {{ form.disponible }}
@@ -86,24 +113,30 @@
                 </label>
             </div>
 
-            <!-- Botones -->
+            <!-- ==================== BOTONES ====================
+                 form-actions: alinea cancelar a la izquierda y guardar a la derecha -->
             <div class="form-actions">
-                <a href="{% url 'lista_productos' %}" class="btn-outline">← Cancelar</a>
+                <a href="{% url 'lista_admin' %}" class="btn-outline">← Cancelar</a>
                 <button type="submit" class="btn-dorado">💾 Guardar producto</button>
             </div>
         </form>
     </div>
 </section>
 
-<!-- JS para preview de imagen -->
+<!-- ==========================================================================
+     SCRIPT DE PREVIEW DE IMAGEN
+     Cuando el usuario elige un archivo, se muestra al instante en la zona
+     ========================================================================== -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del DOM
     const input = document.getElementById('id_imagen');
     const preview = document.getElementById('uploadPreview');
     const zone = document.getElementById('uploadZone');
 
-    if (!input || !preview) return;
+    if (!input || !preview || !zone) return;
 
+    // Al cambiar el input file → mostrar preview
     input.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -116,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         reader.readAsDataURL(file);
     });
 
-    // Drag & drop
+    // Efecto visual al arrastrar sobre la zona
     zone.addEventListener('dragover', e => {
         e.preventDefault();
         zone.classList.add('dragging');
@@ -126,6 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         zone.classList.remove('dragging');
     });
 
+    // Al soltar un archivo → asignarlo al input y disparar el change
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('dragging');

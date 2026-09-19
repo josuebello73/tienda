@@ -8,9 +8,15 @@
 <!-- seccion-perfil: contenedor principal que limita el ancho y centra -->
 <section class="seccion-perfil">
     <div class="perfil-header">
-        <div class="perfil-avatar">
-            {{ user.first_name|first|default:user.username|first|upper }}
-        </div>
+        {% if user.perfil and user.perfil.avatar %}
+            <div class="perfil-avatar perfil-avatar-image">
+                <img src="{{ user.perfil.avatar.url }}" alt="Foto de perfil de {{ user.username }}">
+            </div>
+        {% else %}
+            <div class="perfil-avatar">
+                {{ user.first_name|first|default:user.username|first|upper }}
+            </div>
+        {% endif %}
         <div class="perfil-info">
             <span class="seccion-tag">MI CUENTA</span>
             <h2>{{ user.first_name }} {{ user.last_name }}</h2>
@@ -101,6 +107,16 @@
                     <label for="id_avatar">Cambiar foto de perfil</label>
                     <input type="file" name="avatar" id="id_avatar" accept="image/*" style="color: #a0aab8; padding: 10px 0;">
                 </div>
+
+                {% if user.perfil and user.perfil.avatar %}
+                <div class="perfil-avatar-preview">
+                    <img src="{{ user.perfil.avatar.url }}" alt="Previsualización del avatar">
+                    <label class="checkbox-eliminar-avatar">
+                        <input type="checkbox" name="eliminar_avatar">
+                        <span>Eliminar foto de perfil</span>
+                    </label>
+                </div>
+                {% endif %}
 
                 <button type="submit" class="btn-dorado btn-full">💾 Guardar cambios</button>
             </form>
