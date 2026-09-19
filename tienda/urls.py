@@ -38,4 +38,10 @@ urlpatterns = [
     path('pago/mercadopago/<int:pedido_id>/', views.pago_mercadopago, name='pago_mercadopago'),
     path('pago/binance/<int:pedido_id>/', views.pago_binance, name='pago_binance'),
     path('pago/zelle/<int:pedido_id>/', views.pago_zelle, name='pago_zelle'),
+
+    # ==================== ADMIN: PEDIDOS ====================
+    path('admin-pedidos/', views.lista_pedidos_admin, name='lista_pedidos_admin'),
+    path('admin-pedidos/<int:pedido_id>/', views.detalle_pedido_admin, name='detalle_pedido_admin'),
+    path('admin-pedidos/<int:pedido_id>/eliminar/', views.eliminar_pedido_admin, name='eliminar_pedido_admin'),
+
 ]

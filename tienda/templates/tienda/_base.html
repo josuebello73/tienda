@@ -6,12 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block titulo %}Mi Tienda — Moda Premium{% endblock %}</title>
 
+    <!-- Fuentes de Google -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+    <!-- CSS PRINCIPAL (siempre se carga) -->
     <link rel="stylesheet" href="{% static 'css/estilo.css' %}">
 
+    <!-- Bloque para CSS específico de cada página -->
     {% block css_extra %}{% endblock %}
 </head>
 <body>
@@ -19,7 +22,7 @@
 <!-- ==================== HEADER ==================== -->
 <header class="site-header">
 
-    <!-- Barra dorada superior (SIEMPRE primero) -->
+    <!-- Barra dorada superior -->
     <div class="header-top">
         <p>✨ Envío gratis en compras superiores a $50 ✨</p>
     </div>
@@ -36,59 +39,73 @@
             <input type="text" name="q" placeholder="Buscar prendas, categorías..." value="{{ request.GET.q }}">
             <button type="submit" aria-label="Buscar">🔍</button>
         </form>
+<nav class="header-nav">
+    {% if user.is_authenticated %}
 
-        <nav class="header-nav">
-            {% if user.is_authenticated %}
+        {% if not user.is_staff %}
+        <a href="{% url 'ver_carrito' %}" class="nav-icon" title="Carrito">
+            🛒<span>Carrito</span>
+        </a>
+        {% endif %}
 
-                <!-- Icono carrito -->
-                <a href="{% url 'ver_carrito' %}" class="nav-icon" title="Carrito">
-                    🛒<span>Carrito</span>
-                </a>
+        <div class="user-menu">
+            <span class="user-name">👤 {{ user.first_name|default:user.username }} ▼</span>
 
-                <!-- Menú desplegable del usuario -->
-                <div class="user-menu">
-                    <span class="user-name">👤 {{ user.first_name|default:user.username }} ▼</span>
+            <div class="user-dropdown">
+                <a href="{% url 'mi_perfil' %}">👤 Mi perfil</a>
 
-                    <div class="user-dropdown">
-                        <a href="{% url 'mi_perfil' %}">👤 Mi perfil</a>
-                        <a href="{% url 'historial_pedidos' %}">📦 Mis pedidos</a>
-                        <a href="{% url 'ver_carrito' %}">🛒 Mi carrito</a>
+                {% if not user.is_staff %}
+                <a href="{% url 'historial_pedidos' %}">📦 Mis pedidos</a>
+                <a href="{% url 'ver_carrito' %}">🛒 Mi carrito</a>
+                {% endif %}
 
-                        {% if user.is_staff %}
-                        <div class="dropdown-divider"></div>
-                        <div class="dropdown-label">⚙️ Administración</div>
-                        <a href="{% url 'lista_admin' %}">📊 Panel de productos</a>
-                        <a href="{% url 'lista_categorias' %}">🏷️ Categorías</a>
-                        <a href="{% url 'crear_producto' %}">➕ Agregar producto</a>
-                        <a href="/admin/">🔧 Admin Django</a>
-                        {% endif %}
+                {% if user.is_staff %}
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-label">📊 Tienda</div>
+                <a href="{% url 'lista_pedidos_admin' %}">📦 Pedidos de clientes</a>
+                <a href="{% url 'lista_admin' %}">📊 Panel de productos</a>
+                <a href="{% url 'lista_categorias' %}">🏷️ Categorías</a>
+                <a href="{% url 'crear_producto' %}">➕ Agregar producto</a>
 
-                        <div class="dropdown-divider"></div>
-                        <form action="{% url 'logout' %}" method="post" class="dropdown-logout-form">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-logout">🚪 Cerrar sesión</button>
-                        </form>
-                    </div>
-                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-label">⚙️ Configuración</div>
+                <a href="/admin/">🔧 Admin Django</a>
+                {% endif %}
 
-            {% else %}
-                <a href="{% url 'login' %}" class="btn-outline">Iniciar sesión</a>
-                <a href="{% url 'registro' %}" class="btn-dorado">Registrarse</a>
-            {% endif %}
-        </nav>
+                <div class="dropdown-divider"></div>
+                <form action="{% url 'logout' %}" method="post" class="dropdown-logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-logout">🚪 Cerrar sesión</button>
+                </form>
+            </div>
+        </div>
+
+    {% else %}
+        <a href="{% url 'login' %}" class="btn-outline">Iniciar sesión</a>
+        <a href="{% url 'registro' %}" class="btn-dorado">Registrarse</a>
+    {% endif %}
+</nav>  
+        
     </div>
 
-    <!-- Menú de navegación principal -->
+    <!-- ============================================
+         MENÚ DE NAVEGACIÓN PRINCIPAL
+         El contenido cambia según el rol
+         ============================================ -->
     <nav class="header-menu">
         <a href="{% url 'lista_productos' %}">Catálogo</a>
         <a href="{% url 'lista_productos' %}?orden=nuevo">Novedades</a>
         <a href="{% url 'lista_productos' %}?orden=precio_asc">Ofertas</a>
-        <a href="{% url 'lista_productos' %}?categoria=1">Hombre</a>
-        <a href="{% url 'lista_productos' %}?categoria=2">Mujer</a>
-        <a href="{% url 'lista_productos' %}?categoria=3">Accesorios</a>
 
         {% if user.is_staff %}
-        <a href="{% url 'lista_admin' %}" class="menu-admin">📊 Panel admin</a>
+            <!-- ADMIN: accesos de gestión -->
+            <a href="{% url 'lista_admin' %}" class="menu-admin">📊 Panel admin</a>
+            <a href="{% url 'lista_pedidos_admin' %}">📦 Pedidos</a>
+        {% else %}
+            <!-- CLIENTE / VISITANTE: categorías de tienda -->
+            <a href="{% url 'lista_productos' %}?categoria=1">Hombre</a>
+            <a href="{% url 'lista_productos' %}?categoria=2">Mujer</a>
+            <a href="{% url 'lista_productos' %}?categoria=3">Accesorios</a>
         {% endif %}
     </nav>
 </header>
@@ -132,7 +149,9 @@
                     <li><a href="{% url 'lista_productos' %}">Catálogo</a></li>
                     <li><a href="{% url 'lista_productos' %}?orden=nuevo">Novedades</a></li>
                     <li><a href="{% url 'lista_productos' %}?orden=precio_asc">Ofertas</a></li>
+                    {% if not user.is_staff %}
                     <li><a href="{% url 'ver_carrito' %}">Mi carrito</a></li>
+                    {% endif %}
                 </ul>
             </div>
 
@@ -172,11 +191,7 @@
     </div>
 </footer>
 
-<!-- ==========================================================================
-     JAVASCRIPT GLOBAL
-     - Dropdown-menu.js: controla el menú desplegable del usuario
-     - password-toggle.js: muestra/oculta contraseñas (usado en login y perfil)
-     ========================================================================== -->
+<!-- ==================== JAVASCRIPT GLOBAL ==================== -->
 <script src="{% static 'js/Dropdown-menu.js' %}"></script>
 <script src="{% static 'js/password-toggle.js' %}"></script>
 

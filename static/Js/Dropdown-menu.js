@@ -1,18 +1,32 @@
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * Controla el dropdown del usuario en el header.
+ * - Al pasar el mouse sobre .user-menu → se muestra el dropdown
+ * - Al hacer clic sobre .user-menu → también lo abre/cierra
+ * - Al hacer clic fuera → se cierra
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    const userMenu = document.querySelector('.user-menu');
+    const userDropdown = document.querySelector('.user-dropdown');
 
-    const boton = document.querySelector('.user-menu');
-    const menu = document.querySelector('.user-dropdown');
+    if (!userMenu || !userDropdown) return;
 
-    if (boton && menu) {
-        boton.addEventListener('click', (event) => {
-            menu.classList.toggle('active');
-            event.stopPropagation();
-        });
-    }
+    // Forzar que el dropdown esté oculto al cargar la página
+    userDropdown.style.display = 'none';
 
-    window.addEventListener('click', (event) => {
-        if (!menu.contains(event.target) && !boton.contains(event.target)) {
-            menu.classList.remove('active');
-        }
-    }); 
+    // Al hacer clic sobre el nombre → toggle
+    userMenu.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const visible = userDropdown.style.display === 'block';
+        userDropdown.style.display = visible ? 'none' : 'block';
+    });
+
+    // Al hacer clic fuera → cerrar
+    document.addEventListener('click', function () {
+        userDropdown.style.display = 'none';
+    });
+
+    // Al hacer clic dentro del dropdown → no cerrar
+    userDropdown.addEventListener('click', function (e) {
+        e.stopPropagation();
+    });
 });

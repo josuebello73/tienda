@@ -1,0 +1,99 @@
+{% extends 'tienda/_base.html' %}
+{% load static %}
+
+{% block titulo %}Pedido Confirmado - Mi Tienda{% endblock %}
+
+<!-- Carga el CSS específico de esta página -->
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/confirmacion.css' %}">
+{% endblock %}
+
+{% block contenido %}
+
+<section class="seccion-confirmacion">
+    <div class="confirmacion-card">
+
+        <!-- ==================== ICONO ANIMADO ==================== -->
+        <div class="confirmacion-icon">🎉</div>
+
+        <!-- ==================== TÍTULO ==================== -->
+        <h1>¡Pedido recibido!</h1>
+        <p class="confirmacion-sub">
+            Gracias por tu compra,
+            <strong>{{ user.first_name|default:user.username }}</strong>
+        </p>
+
+        <!-- ==================== INFO DEL PEDIDO ==================== -->
+        <div class="confirmacion-info">
+
+            <div class="confirmacion-info-titulo">
+                📋 Detalles del pedido
+            </div>
+
+            <div class="confirmacion-row">
+                <span class="confirmacion-label">📦 Número de pedido</span>
+                <span class="confirmacion-value">#{{ pedido.id }}</span>
+            </div>
+
+            <div class="confirmacion-row">
+                <span class="confirmacion-label">📅 Fecha</span>
+                <span class="confirmacion-value">{{ pedido.creado|date:"d/m/Y H:i" }}</span>
+            </div>
+
+            <div class="confirmacion-row">
+                <span class="confirmacion-label">🔖 Estado</span>
+                <span class="pedido-estado estado-{{ pedido.estado }}">
+                    {{ pedido.get_estado_display }}
+                </span>
+            </div>
+
+            {% if pedido.referencia_transferencia %}
+            <div class="confirmacion-row">
+                <span class="confirmacion-label">🏦 Referencia</span>
+                <span class="confirmacion-value">{{ pedido.referencia_transferencia }}</span>
+            </div>
+            {% endif %}
+
+            <div class="confirmacion-row">
+                <span class="confirmacion-label">💰 Total pagado</span>
+                <span class="confirmacion-value destacado">${{ pedido.total }}</span>
+            </div>
+        </div>
+
+        <!-- ==================== PRODUCTOS ==================== -->
+        <div class="confirmacion-productos">
+            <h3>🛍️ Productos</h3>
+
+            {% for item in pedido.items.all %}
+            <div class="confirmacion-item">
+                <div class="confirmacion-item-nombre">
+                    <span class="confirmacion-item-cantidad">{{ item.cantidad }}</span>
+                    <span>{{ item.producto.nombre }}</span>
+                </div>
+                <span class="confirmacion-item-precio">${{ item.subtotal }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ==================== AVISO ==================== -->
+        <div class="confirmacion-aviso">
+            <span class="confirmacion-aviso-icon">⏳</span>
+            <div>
+                <strong>Verificando tu pago</strong>
+                Revisaremos tu transferencia en las próximas 24 horas y recibirás una notificación cuando se confirme.
+            </div>
+        </div>
+
+        <!-- ==================== ACCIONES ==================== -->
+        <div class="confirmacion-acciones">
+            <a href="{% url 'historial_pedidos' %}" class="btn-dorado">
+                📦 Ver mis pedidos
+            </a>
+            <a href="{% url 'lista_productos' %}" class="btn-outline">
+                ← Seguir comprando
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -569,3 +569,86 @@ def pago_zelle(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
     messages.info(request, "🚧 Zelle estará disponible pronto. Por ahora, usa transferencia.")
     return redirect('pago_transferencia', pedido_id=pedido.id)
+
+# ==================================================
+# ADMIN: GESTIÓN DE PEDIDOS
+# ==================================================
+
+@staff_member_required
+def lista_pedidos_admin(request):
+    """Panel de admin con TODOS los pedidos de todos los usuarios."""
+    pedidos = Pedido.objects.all().select_related('usuario').order_by('-creado')
+
+    # --- Filtros ---
+    estado = request.GET.get('estado')
+    if estado:
+        pedidos = pedidos.filter(estado=estado)
+
+    q = request.GET.get('q')
+    if q:
+        pedidos = pedidos.filter(
+            Q(id__icontains=q) |
+            Q(usuario__username__icontains=q) |
+            Q(usuario__email__icontains=q) |
+            Q(referencia_transferencia__icontains=q)
+        )
+
+    # --- Estadísticas (sobre TODOS los pedidos, sin filtro) ---
+    todos = Pedido.objects.all()
+    stats = {
+        'total': todos.count(),
+        'pendientes': todos.filter(estado='pendiente').count(),
+        'pagados': todos.filter(estado='pagado').count(),
+        'enviados': todos.filter(estado='enviado').count(),
+        'entregados': todos.filter(estado='entregado').count(),
+        'ingresos': todos.filter(
+            estado__in=['pagado', 'enviado', 'entregado']
+        ).aggregate(total=Sum('total'))['total'] or 0,
+    }
+
+    return render(request, 'tienda/lista_pedidos_admin.html', {
+        'pedidos': pedidos,
+        'stats': stats,
+    })
+
+
+@staff_member_required
+def detalle_pedido_admin(request, pedido_id):
+    """Ver y actualizar un pedido específico desde el admin."""
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+
+        if nuevo_estado and nuevo_estado in dict(Pedido.ESTADOS):
+            pedido.estado = nuevo_estado
+
+            # Marcar fecha de pago si pasa a 'pagado'
+            if nuevo_estado == 'pagado' and not pedido.pagado_en:
+                pedido.pagado_en = timezone.now()
+
+            pedido.save()
+            messages.success(request, f"Pedido #{pedido.id} actualizado a '{pedido.get_estado_display()}'.")
+            return redirect('detalle_pedido_admin', pedido_id=pedido.id)
+
+        messages.error(request, "Estado inválido.")
+
+    return render(request, 'tienda/detalle_pedido_admin.html', {'pedido': pedido})
+
+
+@staff_member_required
+def eliminar_pedido_admin(request, pedido_id):
+    """Eliminar un pedido (solo si está cancelado)."""
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if pedido.estado not in ['cancelado']:
+        messages.error(request, "Solo puedes eliminar pedidos cancelados.")
+        return redirect('detalle_pedido_admin', pedido_id=pedido.id)
+
+    if request.method == 'POST':
+        pid = pedido.id
+        pedido.delete()
+        messages.success(request, f"Pedido #{pid} eliminado.")
+        return redirect('lista_pedidos_admin')
+
+    return render(request, 'tienda/eliminar_pedido_admin.html', {'pedido': pedido})

@@ -238,14 +238,17 @@ main { min-height: 60vh; }
 .nav-icon span { font-size: 0.85rem; }
 
 /* ==========================================================================
-   5. DROPDOWN DE USUARIO
+   DROPDOWN DE USUARIO
    ========================================================================== */
+
+/* Contenedor relativo: ancla para posicionar el dropdown */
 .user-menu {
     position: relative;
     z-index: 1001;
     cursor: pointer;
 }
 
+/* Nombre del usuario (lo que se ve siempre) */
 .user-name {
     display: inline-flex;
     align-items: center;
@@ -264,28 +267,37 @@ main { min-height: 60vh; }
     color: var(--negro);
 }
 
+/* El dropdown en sí: FLOTANTE, oculto por defecto */
 .user-dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
+    display: none;              /* ⬅️ Oculto por defecto */
+    position: absolute;         /* ⬅️ FLOTANTE respecto al user-menu */
+    top: 100%;                  /* ⬅️ Justo debajo del nombre */
+    right: 0;                   /* ⬅️ Alineado a la derecha */
     z-index: 9999;
     background: var(--azul-oscuro);
     border: 1px solid var(--azul-medio);
     border-radius: 8px;
     padding: 0.5rem 0;
-    min-width: 220px;
+    min-width: 240px;
     margin-top: 0.5rem;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    text-align: left;
 }
 
-.user-dropdown.active { display: block; }
+/* Al pasar el mouse sobre el contenedor → mostrar */
+.user-menu:hover .user-dropdown {
+    display: block;
+}
 
+/* Enlaces dentro del dropdown */
 .user-dropdown a {
     display: block;
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
+    color: var(--blanco-hueso);
+    text-decoration: none;
     transition: background 0.3s, color 0.3s;
+    white-space: nowrap;
 }
 
 .user-dropdown a:hover {
@@ -293,12 +305,14 @@ main { min-height: 60vh; }
     color: var(--dorado);
 }
 
+/* Separador entre secciones */
 .dropdown-divider {
     height: 1px;
     background: var(--azul-medio);
     margin: 0.5rem 0;
 }
 
+/* Etiqueta de sección */
 .dropdown-label {
     padding: 0.4rem 1rem;
     color: var(--dorado);
@@ -309,19 +323,30 @@ main { min-height: 60vh; }
     opacity: 0.8;
 }
 
-.dropdown-logout { 
-    color: #ff9c9c !important;
+/* Formulario de logout */
+.dropdown-logout-form {
+    margin: 0;
+    padding: 0;
     display: block;
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-    transition: background 0.3s, color 0.3s;
-    background: transparent;
-    border: none;
+    width: 100%;
 }
 
-.dropdown-logout:hover {
-    background: rgba(235, 87, 87, 0.15) !important;
-    color: #ff6b6b !important;
+.dropdown-logout-form .dropdown-logout {
+    width: 100%;
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: #ff9c9c;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+
+.dropdown-logout-form .dropdown-logout:hover {
+    background: rgba(235, 87, 87, 0.15);
+    color: #ff6b6b;
 }
 
 /* ==========================================================================
@@ -3876,4 +3901,52 @@ html, body.auth-body {
 .auth-forgot a:hover {
     color: #d4af37;
     text-decoration: underline;
+}
+
+/* ==========================================================================
+   ADMIN: DETALLE DE PEDIDO
+   ========================================================================== */
+.seccion-detalle-pedido-admin {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 0 2rem;
+}
+
+.pedido-admin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.pedido-admin-info,
+.pedido-admin-productos {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.pago-datos-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.pago-datos-lista li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px dashed rgba(212, 175, 55, 0.15);
+    font-size: 0.9rem;
+    gap: 1rem;
+}
+
+.pago-datos-lista li:last-child { border-bottom: none; }
+.pago-datos-lista .label { color: var(--gris-texto); font-size: 0.85rem; }
+.pago-datos-lista .valor { color: var(--blanco-hueso); font-weight: 600; text-align: right; word-break: break-word; }
+
+@media (max-width: 900px) {
+    .pedido-admin-grid { grid-template-columns: 1fr; }
+    .seccion-detalle-pedido-admin { padding: 0 1rem; }
 }
