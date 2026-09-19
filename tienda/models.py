@@ -53,13 +53,21 @@ class Pedido(models.Model):
         ('binance', 'Binance Pay / USDT'),
         ('zelle', 'Zelle'),
     ]
+
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pedidos')
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    referencia_pago = models.CharField(max_length=100, blank=True)
-    pagado_en = models.DateTimeField(null=True, blank=True)     
+
+    # ⬇️ CAMPO NUEVO
+    metodo_pago = models.CharField(
+        max_length=20,
+        choices=METODOS_PAGO,
+        default='transferencia'
+    )
+
+    referencia_transferencia = models.CharField(max_length=100, blank=True)
     comprobante = models.ImageField(upload_to='comprobantes/', blank=True, null=True)
 
     class Meta:

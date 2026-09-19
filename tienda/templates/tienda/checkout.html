@@ -1,33 +1,45 @@
 {% extends 'tienda/_base.html' %}
-{% block titulo %}Finalizar Compra{% endblock %}
+{% load static %}
+
+{% block titulo %}Finalizar Compra - Mi Tienda{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+{% endblock %}
 
 {% block contenido %}
+
 <section class="seccion-checkout">
+
     <div class="seccion-header">
         <span class="seccion-tag">PASO FINAL</span>
-        <h2>Finalizar Compra</h2>
+        <h1>Finalizar Compra</h1>
         <p>Elige tu método de pago preferido</p>
     </div>
 
     <div class="checkout-layout">
-        <!-- RESUMEN DEL PEDIDO -->
-        <div class="checkout-resumen">
+
+        <aside class="checkout-resumen">
             <h3>🛒 Tu pedido</h3>
+
             {% for item in carrito %}
             <div class="checkout-item">
-                <span>{{ item.cantidad }}× {{ item.producto.nombre }}</span>
+                <span>
+                    <strong>{{ item.cantidad }}×</strong> {{ item.producto.nombre }}
+                </span>
                 <span>${{ item.total }}</span>
             </div>
             {% endfor %}
+
             <div class="checkout-total">
-                <strong>Total:</strong>
+                <strong>Total</strong>
                 <span class="monto">${{ carrito.total }}</span>
             </div>
-        </div>
+        </aside>
 
-        <!-- MÉTODOS DE PAGO -->
         <form method="post" class="checkout-metodos">
             {% csrf_token %}
+
             <h3>💳 Método de pago</h3>
 
             <label class="metodo-pago">
@@ -50,7 +62,7 @@
                 <input type="radio" name="metodo_pago" value="binance">
                 <div class="metodo-info">
                     <strong>🟡 Binance Pay (USDT)</strong>
-                    <small>Criptomonedas</small>
+                    <small>Criptomonedas · Sin comisiones</small>
                 </div>
             </label>
 
@@ -58,7 +70,7 @@
                 <input type="radio" name="metodo_pago" value="zelle">
                 <div class="metodo-info">
                     <strong>💵 Zelle</strong>
-                    <small>Transferencia en USD</small>
+                    <small>Transferencia en USD · Rápido y seguro</small>
                 </div>
             </label>
 
@@ -66,6 +78,8 @@
                 Confirmar y continuar →
             </button>
         </form>
+
     </div>
 </section>
+
 {% endblock %}
